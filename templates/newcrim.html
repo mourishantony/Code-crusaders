@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insert Criminal Data - Smart Policing</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='newcrim.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav class="glass-nav">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>SmartPolice AI</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="landing">Home</a></li>
+                <li><a href="live-mon">Live Monitoring</a></li>
+                <li><a href="new-crim" class="active">Insert Data</a></li>
+                <li><a href="suspects">Database</a></li>
+                <li><a href="contact">Contact</a></li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </nav>
+    </header>
+
+    <div class="hero-section">
+        <h1>Criminal <span class="accent">Data Entry</span></h1>
+        <p>Upload suspect videos for AI-based facial recognition and criminal database management</p>
+    </div>
+
+    <main>
+        <section class="upload-section">
+            <div class="container">
+                <div class="page-title">
+                    <i class="fas fa-id-card"></i>
+                    <h2>New Criminal Record</h2>
+                </div>
+                <p class="instruction-text">Enter the suspect's name and upload a video for AI-based facial recognition analysis.</p>
+                
+                <form id="upload-form" action="/new-crim" method="post" enctype="multipart/form-data">
+                    <div class="input-box">
+                        <label for="suspect-name"><i class="fas fa-user"></i> Suspect's Name</label>
+                        <input type="text" name="name" id="suspect-name" placeholder="Enter full name" required>
+                    </div>
+                    
+                    <div class="upload-box">
+                        <label for="video-upload"><i class="fas fa-video"></i> Upload Video</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" name="video" id="video-upload" accept="video/*" required>
+                            <div class="file-upload-btn">
+                                <i class="fas fa-cloud-upload-alt"></i> Choose Video
+                            </div>
+                            <span id="file-name">No file chosen</span>
+                        </div>
+                    </div>
+                    
+                    <div id="file-preview"></div>
+                    
+                    <button type="submit" class="submit-btn"><i class="fas fa-search"></i> Analyze Faces</button>
+                </form>
+                
+                <div class="messages">
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                <p>{{ message }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>SmartPolice AI</span>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="landing">Home</a></li>
+                    <li><a href="live-mon">Live Monitoring</a></li>
+                    <li><a href="new-crim">Insert Data</a></li>
+                    <li><a href="suspects">Database</a></li>
+                    <li><a href="contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h3>Contact Us</h3>
+                <p><i class="fas fa-map-marker-alt"></i> 123 Police Plaza, Chennai, TN</p>
+                <p><i class="fas fa-phone"></i> +91 1800-123-4567</p>
+                <p><i class="fas fa-envelope"></i> info@smartpolice.gov</p>
+            </div>
+            <div class="footer-social">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/tech_trailblazers05?igsh=Z3Y3d2hjeDAycXg="><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.linkedin.com/in/harini-m-aa6a78315?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Smart Policing. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.hamburger').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
+            this.classList.toggle('active');
+        });
+
+        // File upload preview
+        document.getElementById("video-upload").addEventListener("change", function(event) {
+            let filePreview = document.getElementById("file-preview");
+            let fileName = document.getElementById("file-name");
+            filePreview.innerHTML = ""; // Clear previous preview
+            
+            if (event.target.files.length === 0) {
+                filePreview.innerHTML = "<p>No video selected.</p>";
+                fileName.textContent = "No file chosen";
+                return;
+            }
+            
+            let file = event.target.files[0];
+            fileName.textContent = file.name;
+            
+            if (file.type.startsWith("video/")) {
+                let videoPreview = document.createElement("video");
+                videoPreview.src = URL.createObjectURL(file);
+                videoPreview.controls = true;
+                videoPreview.classList.add("preview-video");
+                filePreview.appendChild(videoPreview);
+            } else {
+                filePreview.innerHTML = "<p class='error-msg'>Invalid file type. Please upload a video.</p>";
+            }
+        });
+
+        // Form validation
+        document.getElementById("upload-form").addEventListener("submit", function(event) {
+            let suspectName = document.getElementById("suspect-name").value.trim();
+            if (!suspectName) {
+                alert("Please enter the suspect's name.");
+                event.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+:root {
+    --primary-blue: #0a192f;
+    --secondary-blue: #172a45;
+    --accent-cyber: #64ffda;
+    --text-primary: #e6f1ff;
+    --text-secondary: #8892b0;
+    --error-red: #ff5555;
+    --success-green: #50fa7b;
+}
+
+@font-face {
+    font-family: 'Jejumongjyu';
+    src: url('path-to-jejumongjyu-font.woff2') format('woff2');
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+    color: var(--text-primary);
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.header h1 {
+    font-family: 'Arial', serif;
+    font-size: 3.5rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+}
+
+.subtitle {
+    font-family: 'Jejumongjyu', sans-serif;
+    color: var(--accent-cyber);
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+}
+
+.login-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.login-form {
+    background: rgba(23, 42, 69, 0.7);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: 10px;
+    border: 1px solid rgba(100, 255, 218, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--accent-cyber);
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.8rem;
+    background: rgba(10, 25, 47, 0.7);
+    border: 1px solid rgba(100, 255, 218, 0.2);
+    border-radius: 5px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--accent-cyber);
+    box-shadow: 0 0 5px rgba(100, 255, 218, 0.3);
+}
+
+.login-btn {
+    width: 100%;
+    padding: 1rem;
+    background: transparent;
+    border: 1px solid var(--accent-cyber);
+    color: var(--accent-cyber);
+    border-radius: 5px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.login-btn:hover {
+    background: rgba(100, 255, 218, 0.1);
+    transform: translateY(-2px);
+}
+
+.profile-container {
+    background: rgba(23, 42, 69, 0.7);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: 10px;
+    border: 1px solid rgba(100, 255, 218, 0.1);
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.profile-image {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 3px solid var(--accent-cyber);
+    margin-bottom: 1rem;
+}
+
+.badge-number {
+    color: var(--accent-cyber);
+    font-family: 'Jejumongjyu', sans-serif;
+    margin-top: 0.5rem;
+}
+
+.navigate-btn {
+    display: block;
+    width: fit-content;
+    margin: 20px auto;
+    padding: 12px 24px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #004080;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    text-align: center;
+}
+
+.navigate-btn:hover {
+    background-color: #002b5e;
+    transform: scale(1.05);
+}
+
+.navigate-btn:active {
+    transform: scale(0.95);
+    background-color: #001a3a;
+}

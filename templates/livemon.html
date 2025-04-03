@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Monitoring - SmartPolice AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/livemon.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav class="glass-nav">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>SmartPolice AI</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/landing">Home</a></li>
+                <li><a href="/live-monitoring" class="active">Live Monitoring</a></li>
+                <li><a href="/new-crim">Insert Data</a></li>
+                <li><a href="/suspects">Database</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </nav>
+    </header>
+
+    <div class="hero-section">
+        <h1>Real-Time <span class="accent">Criminal Detection</span></h1>
+        <p>Advanced AI-powered monitoring for enhanced public safety and security</p>
+    </div>
+    
+    <main>
+        <section class="monitoring-section">
+            <div class="container">
+                <div class="monitoring-info">
+                    <h2>Intelligent <span class="accent">Surveillance System</span></h2>
+                    <p>Our cutting-edge AI technology continuously analyzes video feeds to identify potential security threats and persons of interest in real-time.</p>
+                </div>
+                
+                <div class="camera-container">
+                    <div class="camera-feed" id="camera-feed">
+                        <img id="videoFeed" src="{{ url_for('video_feed') }}" alt="Live Surveillance Feed">
+                        <div class="timestamp" id="timestamp"></div>
+                        <div class="recording-indicator">
+                            <div class="recording-dot"></div>
+                            <span>REC</span>
+                        </div>
+                    </div>
+                    <div class="status-indicator" id="status-indicator">
+                        <span class="status-dot"></span>
+                        <span class="status-text">Camera Online</span>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn btn-start" id="start-camera">
+                        <i class="fas fa-play"></i> Start Camera
+                    </button>
+                    <button class="btn btn-pause" id="pause-camera" disabled>
+                        <i class="fas fa-pause"></i> Pause Camera
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="stats-section">
+            <div class="container">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-user-shield"></i>
+                        <h3>Real-Time Detection</h3>
+                        <p>Identifies persons of interest in milliseconds with 99.7% accuracy</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-database"></i>
+                        <h3>Comprehensive Database</h3>
+                        <p>Connected to national criminal records for immediate identification</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-bell"></i>
+                        <h3>Instant Alerts</h3>
+                        <p>Immediate notifications when a match is found in our system</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Advanced Analytics</h3>
+                        <p>Behavior pattern recognition to prevent incidents before they occur</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <div class="alert-popup" id="alert-popup">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div>
+            <p id="alert-message">Criminal Detected!</p>
+            <div class="alert-timestamp" id="alert-timestamp"></div>
+        </div>
+    </div>
+
+    <audio id="alert-sound">
+        <source src="{{ url_for('static', filename='alert.mp3') }}" type="audio/mp3">
+    </audio>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>SmartPolice AI</span>
+                </div>
+                <p>Advancing public safety through innovation</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="/landing">Home</a></li>
+                    <li><a href="/live-monitoring">Live Monitoring</a></li>
+                    <li><a href="/new-crim">Insert Data</a></li>
+                    <li><a href="/suspects">Database</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Info</h3>
+                <div class="footer-contact">
+                    <p><i class="fas fa-map-marker-alt"></i> KGISL Institute Of Technology(Autonomous) <br> 365, Thudiyalur Road, Saravanampatti</p>
+                    <p><i class="fas fa-phone"></i> 04254-09375</p>
+                    <p><i class="fas fa-envelope"></i> Kgisl@smartpolice.ai</p>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="https://www.linkedin.com/in/harini-m-aa6a78315?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://www.instagram.com/tech_trailblazers05?igsh=Z3Y3d2hjeDAycXg="><i class="fab fa-instagram"></i></a>
+                    <a href="https://github.com/PYEXPO25/T080_TECHTRAILBLAZERS"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 SmartPolice AI. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Update timestamp for video feed
+        function updateTimestamp() {
+            const now = new Date();
+            document.getElementById("timestamp").textContent = now.toLocaleString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+        }
+        setInterval(updateTimestamp, 1000);
+
+        // Alert system - keep original functionality
+        let alertCooldown = false;
+
+        function fetchAlerts() {
+            if (alertCooldown) return; 
+
+            fetch('/get_alerts')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        let latestAlert = data[data.length - 1];
+                        
+                        document.getElementById("alert-message").innerText = 
+                            `ALERT! Suspect: ${latestAlert.name} Detected`;
+                        document.getElementById("alert-timestamp").innerText = latestAlert.time;
+                        document.getElementById("alert-popup").classList.add("show");
+
+                        let alertSound = document.getElementById("alert-sound");
+                        alertSound.play();
+
+                        alertCooldown = true; 
+
+                        setTimeout(() => {
+                            document.getElementById("alert-popup").classList.remove("show");
+                            alertCooldown = false; 
+                        }, 10000); 
+                    }
+                });
+        }
+
+        setInterval(fetchAlerts, 3000);
+
+        // Camera controls functionality
+        document.getElementById("start-camera").addEventListener("click", function() {
+            document.getElementById("status-indicator").classList.add("online");
+            document.querySelector(".status-text").textContent = "Camera Online";
+            document.getElementById("start-camera").disabled = true;
+            document.getElementById("pause-camera").disabled = false;
+        });
+
+        document.getElementById("pause-camera").addEventListener("click", function() {
+            document.getElementById("status-indicator").classList.remove("online");
+            document.querySelector(".status-text").textContent = "Camera Offline";
+            document.getElementById("start-camera").disabled = false;
+            document.getElementById("pause-camera").disabled = true;
+        });
+
+        // Mobile menu toggle
+        const hamburger = document.querySelector(".hamburger");
+        const navLinks = document.querySelector(".nav-links");
+
+        hamburger.addEventListener("click", () => {
+            hamburger.classList.toggle("active");
+            navLinks.classList.toggle("active");
+        });
+    </script>
+</body>
+</html>

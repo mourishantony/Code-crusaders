@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detected Suspects - SmartPolice AI</title>
+    <!-- External CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Your custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='suspects.css') }}">
+</head>
+<body>
+    <header>
+        <!-- Navigation from landing page -->
+        <nav class="glass-nav">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                Smart Policing System
+            </div>
+            <ul class="nav-links">
+                <li><a href="landing">Home</a></li>
+                <li><a href="live-mon">Live Monitoring</a></li>
+                <li><a href="new-crim">Insert-video</a></li>
+                <li><a href="Database" class="active">Suspects</a></li>
+                <li><a href="contact">Contact</a></li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container fade-in">
+            <h1 class="page-title">Detected Suspects Database</h1>
+            
+            <!-- Search and Filter Section -->
+            <div class="filters">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" id="searchInput" class="form-control" placeholder="Search by name...">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col">
+                                <div class="input-group date mb-3">
+                                    <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                    <input type="text" id="startDate" class="form-control" placeholder="Start Date" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="input-group date mb-3">
+                                    <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                    <input type="text" id="endDate" class="form-control" placeholder="End Date" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-center">
+                        <button id="clearFilters" class="btn btn-clear btn-sm me-2">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                        <button id="exportPDF" class="btn btn-export btn-sm">
+                            <i class="fas fa-file-pdf"></i> Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table id="suspectsTable" class="table">
+                    <thead>
+                        <tr>
+                            <th>Suspect Name</th>
+                            <th>Detection Time</th>
+                            <th>Image</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for suspect in suspects %}
+                        <tr data-name="{{ suspect.suspect_name|lower }}" data-time="{{ suspect.time }}">
+                            <td>{{ suspect.suspect_name }}</td>
+                            <td>{{ suspect.time }}</td>
+                            <td>
+                                {% if suspect.image_b64 %}
+                                <img src="data:image/jpeg;base64,{{ suspect.image_b64 }}" class="suspect-image" alt="{{ suspect.suspect_name }}">
+                                {% else %}
+                                <span>No image available</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="back-btn-container">
+                <a href="/landing" class="btn btn-primary">Back to Dashboard</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer from landing page -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <i class="fas fa-shield-alt"></i>
+                    SmartPolice AI
+                </div>
+                <p>Advancing public safety through innovation</p>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="landing">Home</a></li>
+                    <li><a href="live-mon">Live Monitoring</a></li>
+                    <li><a href="new-crim">Insert Video</a></li>
+                    <li><a href="suspects">Suspects</a></li>
+                    <li><a href="contact">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h3>Contact Info</h3>
+                <p><i class="fas fa-map-marker-alt"></i> KGISL Institute Of Technology(Autonomous) <br> 365, Thudiyalur Road, Saravanampatti</p>
+                <p><i class="fas fa-phone"></i> 04254-09375</p>
+                <p><i class="fas fa-envelope"></i> Kgisl@smartpolice.ai</p>
+            </div>
+            <div class="footer-social">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="https://www.linkedin.com/in/harini-m-aa6a78315?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://www.instagram.com/tech_trailblazers05?igsh=Z3Y3d2hjeDAycXg="><i class="fab fa-instagram"></i></a>
+                    <a href="https://github.com/PYEXPO25/T080_TECHTRAILBLAZERS"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 SmartPolice AI. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Mobile menu toggle
+            const hamburger = document.querySelector('.hamburger');
+            const navMenu = document.querySelector('.nav-links');
+
+            hamburger.addEventListener('click', () => {
+                hamburger.classList.toggle('active');
+                navMenu.classList.toggle('active');
+            });
+            
+            // Initialize datepickers - FIXED
+            $('.input-group.date input').datepicker({
+                format: 'dd-mm-yyyy',
+                autoclose: true,
+                todayHighlight: true,
+                clearBtn: true
+            });
+            
+            // Search functionality
+            $("#searchInput").on("keyup", function() {
+                filterTable();
+            });
+            
+            // Date filtering
+            $("#startDate, #endDate").change(function() {
+                filterTable();
+            });
+            
+            // Clear filters
+            $("#clearFilters").click(function() {
+                $("#searchInput").val('');
+                $("#startDate").val('');
+                $("#endDate").val('');
+                $("#suspectsTable tbody tr").show();
+            });
+            
+            // Function to filter table based on search and date inputs
+            function filterTable() {
+                const searchValue = $("#searchInput").val().toLowerCase();
+                const startDate = $("#startDate").val();
+                const endDate = $("#endDate").val();
+                
+                $("#suspectsTable tbody tr").each(function() {
+                    const name = $(this).data("name");
+                    const time = $(this).data("time");
+                    
+                    // Parse the date string (assuming format: DD-MM-YYYY HH-MM-SS)
+                    let datePass = true;
+                    if (startDate || endDate) {
+                        const dateParts = time.split(" ")[0].split("-");
+                        const rowDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+                        
+                        if (startDate) {
+                            const startParts = startDate.split("-");
+                            const start = new Date(startParts[2], startParts[1] - 1, startParts[0]);
+                            if (rowDate < start) datePass = false;
+                        }
+                        
+                        if (endDate) {
+                            const endParts = endDate.split("-");
+                            const end = new Date(endParts[2], endParts[1] - 1, endParts[0]);
+                            if (rowDate > end) datePass = false;
+                        }
+                    }
+                    
+                    const namePass = name.includes(searchValue);
+                    
+                    if (namePass && datePass) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            }
+            
+            // Export to PDF
+            $("#exportPDF").click(function() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('landscape');
+                
+                // Add title
+                doc.setFontSize(18);
+                doc.text("Detected Suspects Report", 14, 22);
+                
+                // Add date filters if applied
+                const startDate = $("#startDate").val();
+                const endDate = $("#endDate").val();
+                if (startDate || endDate) {
+                    doc.setFontSize(12);
+                    let dateText = "Date Filter: ";
+                    if (startDate) dateText += "From " + startDate;
+                    if (endDate) dateText += " To " + endDate;
+                    doc.text(dateText, 14, 30);
+                }
+                
+                // Add timestamp
+                const now = new Date();
+                doc.setFontSize(10);
+                doc.text("Generated on: " + now.toLocaleString(), 14, 38);
+                
+                // Create table data
+                const tableData = [];
+                $("#suspectsTable tbody tr:visible").each(function() {
+                    const name = $(this).find("td:nth-child(1)").text();
+                    const time = $(this).find("td:nth-child(2)").text();
+                    
+                    // We can't include images in this simple PDF
+                    tableData.push([name, time]);
+                });
+                
+                // Add table to PDF
+                doc.autoTable({
+                    startY: 45,
+                    head: [['Suspect Name', 'Detection Time']],
+                    body: tableData,
+                    theme: 'grid',
+                    headStyles: { fillColor: [26, 35, 126] }
+                });
+                
+                // Save the PDF
+                doc.save("suspects_report.pdf");
+            });
+        });
+    </script>
+</body>
+</html>
