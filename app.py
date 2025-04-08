@@ -208,6 +208,8 @@ def send_email_alert(name, timestamp, face_path):
         print(f"Email sending failed: {e}")
 
 # Update in generate_frames() to send email alerts
+from playsound import playsound
+
 def process_alerts():
     """Thread to process suspect alerts asynchronously"""
     while True:
@@ -227,6 +229,10 @@ def process_alerts():
                 "time": timestamp
             }
             collection.insert_one(suspect_data)
+
+            # Play alert sound
+            alert_sound_path = os.path.join(BASE_PATH, "static", "alert.mp3")
+            playsound(alert_sound_path)
 
             # Send Email
             send_email_alert(name, timestamp, face_path)
