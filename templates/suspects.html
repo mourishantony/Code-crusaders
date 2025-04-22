@@ -87,7 +87,7 @@
                     </thead>
                     <tbody>
                         {% for suspect in suspects %}
-                        <tr data-name="{{ suspect.suspect_name|lower }}" data-time="{{ suspect.time }}">
+                        <tr data-name="{{ suspect.suspect_name|lower }}" data-time="{{ suspect.time }}" class="suspect-row">
                             <td>{{ suspect.suspect_name }}</td>
                             <td>{{ suspect.time }}</td>
                             <td>
@@ -101,6 +101,22 @@
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
+            
+            <!-- Pagination Controls -->
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Showing <span id="startRecord">1</span> to <span id="endRecord">50</span> of <span id="totalRecords">0</span> records
+                </div>
+                <div class="pagination-controls">
+                    <button id="prevPage" class="btn btn-pagination" disabled>
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <span id="currentPage">Page 1</span>
+                    <button id="nextPage" class="btn btn-pagination">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
             </div>
             
             <div class="back-btn-container">
@@ -168,12 +184,71 @@
                 navMenu.classList.toggle('active');
             });
             
-            // Initialize datepickers - FIXED
+            // Initialize datepickers
             $('.input-group.date input').datepicker({
                 format: 'dd-mm-yyyy',
                 autoclose: true,
                 todayHighlight: true,
                 clearBtn: true
+            });
+            
+            // Pagination variables
+            let currentPage = 1;
+            const rowsPerPage = 50;
+            let filteredRows = [];
+            
+            // Initial setup
+            function initTable() {
+                const allRows = $("#suspectsTable tbody tr");
+                filteredRows = allRows;
+                updatePagination();
+                showPage(currentPage);
+                
+                // Update total records count
+                $("#totalRecords").text(allRows.length);
+            }
+            
+            // Show specified page
+            function showPage(page) {
+                const startIndex = (page - 1) * rowsPerPage;
+                const endIndex = startIndex + rowsPerPage;
+                
+                // Hide all rows first
+                filteredRows.hide();
+                
+                // Show only rows for current page
+                filteredRows.slice(startIndex, endIndex).show();
+                
+                // Update pagination info
+                $("#startRecord").text(filteredRows.length > 0 ? startIndex + 1 : 0);
+                $("#endRecord").text(Math.min(endIndex, filteredRows.length));
+                $("#currentPage").text("Page " + page);
+                
+                // Update button states
+                $("#prevPage").prop("disabled", page === 1);
+                $("#nextPage").prop("disabled", endIndex >= filteredRows.length);
+            }
+            
+            // Update pagination after filtering
+            function updatePagination() {
+                currentPage = 1;
+                showPage(currentPage);
+            }
+            
+            // Next page button
+            $("#nextPage").click(function() {
+                if (currentPage * rowsPerPage < filteredRows.length) {
+                    currentPage++;
+                    showPage(currentPage);
+                }
+            });
+            
+            // Previous page button
+            $("#prevPage").click(function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    showPage(currentPage);
+                }
             });
             
             // Search functionality
@@ -191,7 +266,12 @@
                 $("#searchInput").val('');
                 $("#startDate").val('');
                 $("#endDate").val('');
-                $("#suspectsTable tbody tr").show();
+                
+                // Reset to show all rows
+                filteredRows = $("#suspectsTable tbody tr");
+                updatePagination();
+                showPage(currentPage);
+                $("#totalRecords").text(filteredRows.length);
             });
             
             // Function to filter table based on search and date inputs
@@ -199,8 +279,10 @@
                 const searchValue = $("#searchInput").val().toLowerCase();
                 const startDate = $("#startDate").val();
                 const endDate = $("#endDate").val();
+                const allRows = $("#suspectsTable tbody tr");
                 
-                $("#suspectsTable tbody tr").each(function() {
+                // Filter rows based on criteria
+                filteredRows = allRows.filter(function() {
                     const name = $(this).data("name");
                     const time = $(this).data("time");
                     
@@ -225,15 +307,17 @@
                     
                     const namePass = name.includes(searchValue);
                     
-                    if (namePass && datePass) {
-                        $(this).show();
-                    } else {
-                        $(this).hide();
-                    }
+                    return (namePass && datePass);
                 });
+                
+                // Update pagination and show first page
+                updatePagination();
+                
+                // Update total records count for filtered results
+                $("#totalRecords").text(filteredRows.length);
             }
             
-            // Export to PDF
+            // Export to PDF - Updated to export only visible (filtered) records
             $("#exportPDF").click(function() {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF('landscape');
@@ -253,14 +337,18 @@
                     doc.text(dateText, 14, 30);
                 }
                 
+                // Add pagination info
+                doc.setFontSize(10);
+                doc.text("Page: " + currentPage + " (Showing records " + $("#startRecord").text() + 
+                         " to " + $("#endRecord").text() + " of " + $("#totalRecords").text() + ")", 14, 38);
+                
                 // Add timestamp
                 const now = new Date();
-                doc.setFontSize(10);
-                doc.text("Generated on: " + now.toLocaleString(), 14, 38);
+                doc.text("Generated on: " + now.toLocaleString(), 14, 46);
                 
-                // Create table data
+                // Create table data - only export currently visible rows
                 const tableData = [];
-                $("#suspectsTable tbody tr:visible").each(function() {
+                filteredRows.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage).each(function() {
                     const name = $(this).find("td:nth-child(1)").text();
                     const time = $(this).find("td:nth-child(2)").text();
                     
@@ -270,7 +358,7 @@
                 
                 // Add table to PDF
                 doc.autoTable({
-                    startY: 45,
+                    startY: 55,
                     head: [['Suspect Name', 'Detection Time']],
                     body: tableData,
                     theme: 'grid',
@@ -278,8 +366,11 @@
                 });
                 
                 // Save the PDF
-                doc.save("suspects_report.pdf");
+                doc.save("suspects_report_page" + currentPage + ".pdf");
             });
+            
+            // Initialize the table with pagination
+            initTable();
         });
     </script>
 </body>
