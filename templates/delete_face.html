@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete Trained Face</title>
+</head>
+<body style="background-color: #111; color: #fff; font-family: Arial;">
+    <h1>🗑️ Delete a Trained Face</h1>
+
+    {% if message %}
+        <p style="color: yellow;">{{ message }}</p>
+    {% endif %}
+
+    <form method="POST">
+        <label for="name">Select a Name to Delete:</label>
+        <select name="name" required>
+            {% for name in names %}
+                <option value="{{ name }}">{{ name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Delete</button>
+    </form>
+
+    <hr>
+    <h3>🧠 Currently Trained Faces:</h3>
+    <ul>
+        {% for name in names %}
+            <li>{{ name }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

@@ -249,6 +249,34 @@ def process_alerts():
 alert_thread = threading.Thread(target=process_alerts, daemon=True)
 alert_thread.start()
 
+def delete_face_by_name(name_to_delete, embeddings_path="embeddings.pkl"):
+    try:
+        with open(embeddings_path, "rb") as f:
+            data = pickle.load(f)
+
+        new_embeddings = []
+        new_names = []
+
+        for emb, name in zip(data["embeddings"], data["names"]):
+            if name != name_to_delete:
+                new_embeddings.append(emb)
+                new_names.append(name)
+
+        data["embeddings"] = new_embeddings
+        data["names"] = new_names
+
+        with open(embeddings_path, "wb") as f:
+            pickle.dump(data, f)
+
+        print(f"✅ Successfully deleted all faces named '{name_to_delete}'")
+        return True
+
+    except FileNotFoundError:
+        print("❌ embeddings.pkl not found.")
+        return False
+    except Exception as e:
+        print(f"⚠️ Error: {e}")
+        return False
 
 def generate_frames():
     global alerts, last_detection_time
@@ -346,6 +374,32 @@ def live_mon():
 @app.route('/video_feed')
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/delete_face', methods=['GET', 'POST'])
+def delete_face():
+    embeddings_path = "embeddings.pkl"
+    
+    # Load existing data
+    try:
+        with open(embeddings_path, 'rb') as f:
+            embeddings = pickle.load(f)
+    except Exception as e:
+        print("⚠️ Error loading embeddings:", e)
+        embeddings = {}
+
+    if request.method == 'POST':
+        name_to_delete = request.form['name']
+        if name_to_delete in embeddings:
+            del embeddings[name_to_delete]
+            with open(embeddings_path, 'wb') as f:
+                pickle.dump(embeddings, f)
+            message = f"✅ Deleted: {name_to_delete}"
+        else:
+            message = f"❌ Name '{name_to_delete}' not found."
+        return render_template("delete_face.html", names=list(embeddings.keys()), message=message)
+
+    return render_template("delete_face.html", names=list(embeddings.keys()), message=None)
+
 
 @app.route('/contact')
 def contact():
