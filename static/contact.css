@@ -1,5 +1,5 @@
-/* Reset and Base Styles */
-* {
+Reset and Base Styles
+/* * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -13,7 +13,7 @@ body {
 }
 
 /* Variables */
-:root {
+/* :root {
     --primary-color: #1e3a8a;
     --secondary-color: #3b82f6;
     --accent-color: #2563eb;
@@ -25,7 +25,7 @@ body {
 }
 
 /* Typography */
-h1, h2, h3 {
+/* h1, h2, h3 {
     font-family: 'Montserrat', sans-serif;
     color: var(--dark-color);
     font-weight: 600;
@@ -33,10 +33,10 @@ h1, h2, h3 {
 
 .accent {
     color: var(--accent-color);
-}
+} */ */
 
 /* Navigation */
-.glass-nav {
+/* .glass-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -69,8 +69,8 @@ h1, h2, h3 {
 
 .nav-links li {
     margin-left: 2rem;
-}
-
+} */ */
+/* 
 .nav-links a {
     text-decoration: none;
     color: var(--dark-color);
@@ -100,7 +100,7 @@ h1, h2, h3 {
     transition: var(--transition);
 }
 
-/* Hero Section */
+/* Hero Section 
 .hero-section {
     background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
     color: white;
@@ -125,15 +125,14 @@ h1, h2, h3 {
     margin: 0 auto;
     opacity: 0.9;
 }
-
-/* Main Content */
+/* Main Content 
 main {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
 }
 
-/* Team Cards Section */
+/* Team Cards Section 
 .team-section {
     margin-bottom: 4rem;
 }
@@ -148,6 +147,7 @@ main {
     height: 320px;
     perspective: 1000px;
     margin-bottom: 20px;
+    width: 250px;
 }
 
 .team-card-inner {
@@ -190,8 +190,8 @@ main {
     border: 3px solid white;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     margin-bottom: 15px;
-}
-
+} */
+/* 
 .team-card-front h3 {
     font-size: 1.3rem;
     margin-bottom: 5px;
@@ -283,7 +283,7 @@ main {
     transform: translateY(-3px);
 }
 
-/* Contact Form Section */
+/* Contact Form Section 
 .contact-form-section {
     background-color: white;
     padding: 3rem;
@@ -333,9 +333,9 @@ main {
     border-radius: 8px;
     font-size: 1rem;
     transition: var(--transition);
-}
+} */
 
-.form-group input:focus,
+/* .form-group input:focus,
 .form-group textarea:focus {
     border-color: var(--accent-color);
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
@@ -363,7 +363,7 @@ main {
     transform: translateY(-3px);
 }
 
-/* Footer */
+/* Footer 
 footer {
     background-color: var(--dark-color);
     color: white;
@@ -397,8 +397,8 @@ footer {
     color: white;
     margin-bottom: 1.2rem;
     font-size: 1.2rem;
-}
-
+} */
+/* 
 .footer-links ul {
     list-style: none;
 }
@@ -450,8 +450,8 @@ footer {
 .social-icons a:hover {
     background-color: var(--accent-color);
     transform: translateY(-3px);
-}
-
+} */
+/* 
 .footer-bottom {
     text-align: center;
     padding-top: 2rem;
@@ -459,7 +459,7 @@ footer {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Responsive Design */
+/* Responsive Design
 @media screen and (max-width: 768px) {
     .hamburger {
         display: block;
@@ -489,8 +489,8 @@ footer {
         box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
         padding: 20px 0;
     }
-    
-    .nav-links.active {
+     */
+    /* .nav-links.active {
         left: 0;
     }
     
@@ -525,7 +525,7 @@ footer {
     }
 }
 
-/* Animations */
+/* Animations 
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -533,8 +533,8 @@ footer {
     to {
         opacity: 1;
     }
-}
-
+} */
+/* 
 .team-card {
     animation: fadeIn 0.6s ease forwards;
-}
+} */
