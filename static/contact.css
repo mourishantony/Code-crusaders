@@ -52,7 +52,7 @@ html {
     justify-content: space-between;
     align-items: center;
     padding: 1.2rem 5%;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(26, 35, 126, 0.95);
     backdrop-filter: blur(10px);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     position: sticky;
@@ -64,8 +64,7 @@ html {
     display: flex;
     align-items: center;
     font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-color);
+    font-weight: 700;;
 }
 
 .logo i {
@@ -586,4 +585,111 @@ footer {
 
 .team-card {
     animation: fadeIn 0.6s ease forwards;
+}
+
+
+/* === OVERRIDDEN NAVIGATION STYLE === */
+.glass-nav {
+    background: rgba(26, 35, 126, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.logo {
+    color: #fff;
+    gap: 10px;
+}
+
+.logo span {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 1.3rem;
+    color: #fff;
+}
+
+.nav-links a {
+    color: #fff;
+    background: transparent;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.bar {
+    background-color: #fff;
+}
+
+/* Mobile Nav */
+@media screen and (max-width: 768px) {
+    .nav-links {
+        background: rgba(26, 35, 126, 0.95);
+    }
+}
+
+/* === OVERRIDDEN FOOTER STYLE === */
+footer {
+    background: #1a237e;
+    color: #fff;
+    padding: 3rem 5% 0;
+    margin-top: 3rem;
+}
+
+.footer-links h3,
+.footer-contact h3,
+.footer-social h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.footer-links h3::after,
+.footer-contact h3::after,
+.footer-social h3::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 2px;
+    background: #ff9800;
+}
+
+.footer-links a,
+.footer-social .social-icons a {
+    color: #ccc;
+}
+
+.footer-links a:hover,
+.footer-social .social-icons a:hover {
+    color: #fff;
+}
+
+.footer-contact p i {
+    color: #ff9800;
+}
+
+.footer-social .social-icons a {
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.footer-social .social-icons a:hover {
+    background: #ff9800;
+    transform: translateY(-3px);
+}
+
+.footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 1.5rem 0;
 }
