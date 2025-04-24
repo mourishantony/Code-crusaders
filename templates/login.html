@@ -1,3 +1,5 @@
+
+<!-- Updated login.html with proper authentication support -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cyber Crime Division - Smart Policing</title>
     <link href="https://fonts.googleapis.com/css2?family=Italiana&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">  
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">  
 </head>
 <body>
     <div class="container">
@@ -17,10 +19,17 @@
         <main class="login-container">
             <div id="loginForm" class="login-form">
                 <h2>Secure Access Portal</h2>
-                <form onsubmit="return handleLogin(event)">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <form action="{{ url_for('login_post') }}" method="POST">
                     <div class="form-group">
-                        <label for="badgeNumber">Cyber Division Badge ID</label>
-                        <input type="text" id="badgeNumber" name="badgeNumber" required 
+                        <label for="badge_number">Cyber Division Badge ID</label>
+                        <input type="text" id="badge_number" name="badge_number" required 
                                pattern="KG[0-9]{4}" 
                                title="Please enter valid Cyber Division badge number (e.g., KG1234)">
                     </div>
@@ -34,34 +43,11 @@
                         Submit
                     </button>
                 </form>
+                <div class="register-link">
+                    <p>New officer? <a href="{{ url_for('register') }}">Register here</a></p>
+                </div>
             </div>
-
-            <div id="profileContainer" class="profile-container" style="display: none;"></div>
         </main>
     </div>
-
-    <script>
-        const officerDatabase = {
-            "KG0120": { name: "Harini", rank: "Cyber Crime Specialist", photo: "./images/harini.jpg", password: "Harini@12345" },
-            "KG0201": { name: "Mourish Antony", rank: "Lead Digital Investigator", photo: "./images/mourish.jpg", password: "182799" },
-            "KG0262": { name: "Vinu Karthick", rank: "Lead Digital Investigator", photo: "./images/vinu.jpg", password: "Karthick@12345" },
-            "KG0205": { name: "Natarajan", rank: "Lead Digital Investigator", photo: "./images/natarajan.jpg", password: "Natarajan@12345" },
-            "KG0254": { name: "Tejaashri", rank: "Lead Digital Investigator", photo: "./images/tejaashri.jpg", password: "Tejaashri@12345" }
-        };
-
-        function handleLogin(event) {
-            event.preventDefault();
-            const badgeNumber = document.getElementById('badgeNumber').value;
-            const password = document.getElementById('password').value;
-            const officer = officerDatabase[badgeNumber];
-
-            if (officer && officer.password === password) {
-                window.location.href = "/landing";
-            } else {
-                alert("Authentication failed. Please verify your credentials.");
-            }
-}
-
-    </script>
 </body>
 </html>

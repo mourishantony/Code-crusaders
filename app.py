@@ -1,24 +1,51 @@
-from flask import Flask, render_template, Response, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, Response, request, redirect, url_for, flash, jsonify, session
 import cv2
 import os
 import numpy as np
 import mediapipe as mp
 from keras_facenet import FaceNet
 import pickle
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
-from pymongo import MongoClient
-from email.message import EmailMessage
-import smtplib
 import ssl
 import threading
 from queue import Queue
 from twilio.rest import Client
+from email.message import EmailMessage
+import smtplib
+from playsound import playsound
+from werkzeug.security import generate_password_hash, check_password_hash
+import secrets
+import base64
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, ForeignKey, func
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, scoped_session
 
+
+# Initialize queue for background processing
 task_queue = Queue()
 
+# Flask application setup
 app = Flask(__name__)
-app.secret_key = "your_secret_key"
+app.secret_key = secrets.token_hex(24)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
+
+# SQLite Database Configuration
+BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_PATH, "database.db")
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_PATH}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Create the SQLAlchemy engine
+engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+Base = declarative_base()
+
+# Create session factory
+session_factory = sessionmaker(bind=engine)
+db_session = scoped_session(session_factory)
+
+# Division access code for registration
+DIVISION_ACCESS_CODE = "SPD2025"  # Change this to a secure code
 
 # Email Configuration
 EMAIL_SENDER = 'mourishantonyc@gmail.com'
@@ -31,18 +58,7 @@ TWILIO_AUTH_TOKEN = '783f05428cca6ca85710e8780c446c61'
 TWILIO_PHONE_NUMBER = '+18596591506'      
 RECIPIENT_PHONE_NUMBER = '+916381032833' 
 
-# Connect to MongoDB
-client = MongoClient("mongodb://localhost:27017/")
-db = client["face_recognition"]
-collection = db["suspects"]
-
-# Load Face Recognition Model
-embedder = FaceNet()
-mp_face_detection = mp.solutions.face_detection
-face_detector = mp_face_detection.FaceDetection(model_selection=1, min_detection_confidence=0.5)
-
 # Directories
-BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 DETECTED_FACES_FOLDER = os.path.join(BASE_PATH, "detected_faces")
 TIME_DATA_FOLDER = os.path.join(BASE_PATH, "time_data")
 EMBEDDINGS_FILE = os.path.join(BASE_PATH, "embeddings.pkl")
@@ -54,11 +70,48 @@ os.makedirs(TIME_DATA_FOLDER, exist_ok=True)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(DATASET_FOLDER, exist_ok=True)
 
+# SQLAlchemy Models
+class Officer(Base):
+    __tablename__ = 'officers'
+    
+    id = Column(Integer, primary_key=True)
+    badge_number = Column(String(10), unique=True, nullable=False)
+    full_name = Column(String(100), nullable=False)
+    rank = Column(String(50), nullable=False)
+    email = Column(String(100), unique=True, nullable=False)
+    password_hash = Column(String(255), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class Suspect(Base):
+    __tablename__ = 'suspects'
+    
+    id = Column(Integer, primary_key=True)
+    suspect_name = Column(String(100), nullable=False)
+    image_path = Column(String(255), nullable=False)
+    detected_time = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+# Load Face Recognition Model
+embedder = FaceNet()
+mp_face_detection = mp.solutions.face_detection
+face_detector = mp_face_detection.FaceDetection(model_selection=1, min_detection_confidence=0.5)
+
 # Load known faces embeddings
-with open(EMBEDDINGS_FILE, "rb") as f:
-    known_faces = pickle.load(f)
+try:
+    with open(EMBEDDINGS_FILE, "rb") as f:
+        known_faces = pickle.load(f)
+except (FileNotFoundError, EOFError):
+    known_faces = {}
 
+# Initialize database
+def init_db():
+    try:
+        Base.metadata.create_all(engine)
+        print("Database initialized successfully")
+    except Exception as e:
+        print(f"Error initializing database: {e}")
 
+# Face recognition functions
 def extract_face(img):
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     results = face_detector.process(img_rgb)
@@ -69,7 +122,7 @@ def extract_face(img):
             bboxC = detection.location_data.relative_bounding_box
             h, w, _ = img.shape
             x, y, width, height = (int(bboxC.xmin * w), int(bboxC.ymin * h), 
-                                   int(bboxC.width * w), int(bboxC.height * h))
+                                  int(bboxC.width * w), int(bboxC.height * h))
             face = img_rgb[y:y + height, x:x + width]
             if face.shape[0] > 0 and face.shape[1] > 0:
                 faces.append((face, (x, y, width, height)))
@@ -88,9 +141,102 @@ def recognize_face(face_embedding):
                 name = person
     return name
 
-alerts = []
-last_detection_time = {}
+# Alert mechanisms
+def make_alert_call(name, timestamp):
+    """Make a phone call alert when a suspect is detected"""
+    try:
+        client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+        
+        # Create a TwiML response with text-to-speech
+        twiml = f"""
+        <Response>
+            <Say>Alert! Suspect {name} has been detected at {timestamp}. Please check your email for more details.</Say>
+            <Pause length="1"/>
+            <Say>Repeating: Suspect {name} has been detected.</Say>
+        </Response>
+        """
+        
+        # Make the call
+        call = client.calls.create(
+            twiml=twiml,
+            to=RECIPIENT_PHONE_NUMBER,
+            from_=TWILIO_PHONE_NUMBER
+        )
+        
+        print(f"Phone alert initiated for suspect: {name}, Call SID: {call.sid}")
+        return True
+    except Exception as e:
+        print(f"Error making phone call: {e}")
+        return False
 
+def send_email_alert(name, timestamp, face_path):
+    subject = f"Suspect Detected: {name}"
+    body = f"A suspect has been detected!!!!.\n\nName: {name}\nTime: {timestamp}"
+
+    msg = EmailMessage()
+    msg['From'] = EMAIL_SENDER
+    msg['To'] = EMAIL_RECEIVER
+    msg['Subject'] = subject
+    msg.set_content(body)
+
+    # Attach the detected face image
+    try:
+        with open(face_path, 'rb') as img:
+            img_data = img.read()
+            img_name = os.path.basename(face_path)
+            msg.add_attachment(img_data, maintype='image', subtype='jpeg', filename=img_name)
+    except Exception as e:
+        print(f"Error attaching image: {e}")
+
+    context = ssl.create_default_context()
+    try:
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
+            smtp.login(EMAIL_SENDER, EMAIL_PASSWORD)
+            smtp.sendmail(EMAIL_SENDER, EMAIL_RECEIVER, msg.as_string())
+            print(f"Email alert sent for suspect: {name}")
+    except Exception as e:
+        print(f"Email sending failed: {e}")
+
+def process_alerts():
+    """Thread to process suspect alerts asynchronously"""
+    while True:
+        task = task_queue.get()
+        if task is None:
+            break  # Stop the thread when None is added to the queue
+
+        name, timestamp, face_path = task
+        try:
+            # Save suspect in SQLite database
+            session = db_session()
+            suspect = Suspect(
+                suspect_name=name, 
+                image_path=face_path, 
+                detected_time=datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+            )
+            session.add(suspect)
+            session.commit()
+            session.close()
+
+            # Play alert sound
+            alert_sound_path = os.path.join(BASE_PATH, "static", "alert.mp3")
+            playsound(alert_sound_path)
+
+            # Send Email
+            send_email_alert(name, timestamp, face_path)
+            
+            # Make phone call alert
+            make_alert_call(name, timestamp)
+
+        except Exception as e:
+            print(f"Error processing alert: {e}")
+
+        task_queue.task_done()
+
+# Start the background thread
+alert_thread = threading.Thread(target=process_alerts, daemon=True)
+alert_thread.start()
+
+# Video processing functions
 def extract_faces_from_video(name, video_path, num_images=500):
     if not os.path.exists(video_path):
         return "Error: Video file does not exist."
@@ -152,131 +298,8 @@ def extract_faces_from_video(name, video_path, num_images=500):
     
     return "No faces detected in the video."
 
-def make_alert_call(name, timestamp):
-    """Make a phone call alert when a suspect is detected"""
-    try:
-        client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-        
-        # Create a TwiML response with text-to-speech
-        twiml = f"""
-        <Response>
-            <Say>Alert! Suspect {name} has been detected at {timestamp}. Please check your email for more details.</Say>
-            <Pause length="1"/>
-            <Say>Repeating: Suspect {name} has been detected.</Say>
-        </Response>
-        """
-        
-        # Make the call
-        call = client.calls.create(
-            twiml=twiml,
-            to=RECIPIENT_PHONE_NUMBER,
-            from_=TWILIO_PHONE_NUMBER
-        )
-        
-        print(f"Phone alert initiated for suspect: {name}, Call SID: {call.sid}")
-        return True
-    except Exception as e:
-        print(f"Error making phone call: {e}")
-        return False
-
-def send_email_alert(name, timestamp, face_path):
-    subject = f"Suspect Detected  : {name}"
-    body = f"A suspect has been detected!!!!.\n\nName: {name}\nTime: {timestamp}"
-
-    msg = EmailMessage()
-    msg['From'] = EMAIL_SENDER
-    msg['To'] = EMAIL_RECEIVER
-    msg['Subject'] = subject
-    msg.set_content(body)
-
-    # Attach the detected face image
-    try:
-        with open(face_path, 'rb') as img:
-            img_data = img.read()
-            img_name = os.path.basename(face_path)
-            msg.add_attachment(img_data, maintype='image', subtype='jpeg', filename=img_name)
-    except Exception as e:
-        print(f"Error attaching image: {e}")
-
-    context = ssl.create_default_context()
-    try:
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
-            smtp.login(EMAIL_SENDER, EMAIL_PASSWORD)
-            smtp.sendmail(EMAIL_SENDER, EMAIL_RECEIVER, msg.as_string())
-            print(f"Email alert sent for suspect: {name}")
-    except Exception as e:
-        print(f"Email sending failed: {e}")
-
-# Update in generate_frames() to send email alerts
-from playsound import playsound
-
-def process_alerts():
-    """Thread to process suspect alerts asynchronously"""
-    while True:
-        task = task_queue.get()
-        if task is None:
-            break  # Stop the thread when None is added to the queue
-
-        name, timestamp, face_path = task
-        try:
-            # Save suspect in MongoDB
-            with open(face_path, "rb") as img_file:
-                image_data = img_file.read()
-
-            suspect_data = {
-                "suspect_name": name,
-                "detected_image": image_data,
-                "time": timestamp
-            }
-            collection.insert_one(suspect_data)
-
-            # Play alert sound
-            alert_sound_path = os.path.join(BASE_PATH, "static", "alert.mp3")
-            playsound(alert_sound_path)
-
-            # Send Email
-            send_email_alert(name, timestamp, face_path)
-            
-            # Make phone call alert
-            make_alert_call(name, timestamp)
-
-        except Exception as e:
-            print(f"Error processing alert: {e}")
-
-        task_queue.task_done()
-
-# Start the background thread
-alert_thread = threading.Thread(target=process_alerts, daemon=True)
-alert_thread.start()
-
-def delete_face_by_name(name_to_delete, embeddings_path="embeddings.pkl"):
-    try:
-        with open(embeddings_path, "rb") as f:
-            data = pickle.load(f)
-
-        new_embeddings = []
-        new_names = []
-
-        for emb, name in zip(data["embeddings"], data["names"]):
-            if name != name_to_delete:
-                new_embeddings.append(emb)
-                new_names.append(name)
-
-        data["embeddings"] = new_embeddings
-        data["names"] = new_names
-
-        with open(embeddings_path, "wb") as f:
-            pickle.dump(data, f)
-
-        print(f"✅ Successfully deleted all faces named '{name_to_delete}'")
-        return True
-
-    except FileNotFoundError:
-        print("❌ embeddings.pkl not found.")
-        return False
-    except Exception as e:
-        print(f"⚠️ Error: {e}")
-        return False
+alerts = []
+last_detection_time = {}
 
 def generate_frames():
     global alerts, last_detection_time
@@ -293,8 +316,8 @@ def generate_frames():
 
         # Reload known faces dynamically
         if os.path.exists(EMBEDDINGS_FILE):
-         with open(EMBEDDINGS_FILE, "rb") as f:
-            known_faces = pickle.load(f)
+            with open(EMBEDDINGS_FILE, "rb") as f:
+                known_faces = pickle.load(f)
 
         faces = extract_face(frame)
         for face, (x, y, width, height) in faces:
@@ -313,7 +336,7 @@ def generate_frames():
                 person_folder = os.path.join(DETECTED_FACES_FOLDER, name)
                 os.makedirs(person_folder, exist_ok=True)
 
-                timestamp = datetime.now().strftime("%d-%m-%Y %H-%M-%S")
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 face_count = len(os.listdir(person_folder))
                 face_filename = f"img_{face_count + 1}.jpg"
                 face_path = os.path.join(person_folder, face_filename)
@@ -338,6 +361,115 @@ def generate_frames():
     cap.release()
     cv2.destroyAllWindows()
 
+# Routes for authentication
+@app.route('/')
+def login():
+    if 'badge_number' in session:
+        return redirect(url_for('landing'))
+    return render_template('login.html')
+
+@app.route('/login', methods=['POST'])
+def login_post():
+    badge_number = request.form.get('badge_number')
+    password = request.form.get('password')
+    
+    if not badge_number or not password:
+        flash('Please provide both badge number and password', 'error')
+        return redirect(url_for('login'))
+    
+    try:
+        db = db_session()
+        officer = db.query(Officer).filter_by(badge_number=badge_number).first()
+        
+        if officer and check_password_hash(officer.password_hash, password):
+            session.permanent = True
+            session['badge_number'] = badge_number
+            session['full_name'] = officer.full_name
+            session['rank'] = officer.rank
+            flash(f'Welcome, {officer.rank} {officer.full_name}!', 'success')
+            return redirect(url_for('landing'))
+        else:
+            flash('Invalid credentials. Please try again.', 'error')
+    except Exception as e:
+        flash(f'Error during login: {str(e)}', 'error')
+    finally:
+        db.close()
+    
+    return redirect(url_for('login'))
+
+@app.route('/register')
+def register():
+    return render_template('registration.html')
+
+@app.route('/register', methods=['POST'])
+def register_post():
+    badge_number = request.form.get('badge_number')
+    full_name = request.form.get('full_name')
+    rank = request.form.get('rank')
+    email = request.form.get('email')
+    password = request.form.get('password')
+    confirm_password = request.form.get('confirm_password')
+    division_code = request.form.get('division_code')
+    
+    # Validate input
+    if not all([badge_number, full_name, rank, email, password, confirm_password, division_code]):
+        flash('All fields are required', 'error')
+        return redirect(url_for('register'))
+    
+    if password != confirm_password:
+        flash('Passwords do not match', 'error')
+        return redirect(url_for('register'))
+    
+    if division_code != DIVISION_ACCESS_CODE:
+        flash('Invalid division access code', 'error')
+        return redirect(url_for('register'))
+    
+    try:
+        db = db_session()
+        
+        # Check if badge number or email already exists
+        existing_user = db.query(Officer).filter(
+            (Officer.badge_number == badge_number) | (Officer.email == email)
+        ).first()
+        
+        if existing_user:
+            flash('Badge number or email already registered', 'error')
+            return redirect(url_for('register'))
+        
+        # Create new officer
+        password_hash = generate_password_hash(password)
+        new_officer = Officer(
+            badge_number=badge_number,
+            full_name=full_name,
+            rank=rank,
+            email=email,
+            password_hash=password_hash
+        )
+        db.add(new_officer)
+        db.commit()
+        
+        flash('Registration successful! You can now log in', 'success')
+        return redirect(url_for('login'))
+        
+    except Exception as e:
+        flash(f'Error during registration: {str(e)}', 'error')
+        return redirect(url_for('register'))
+    finally:
+        db.close()
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash('You have been logged out', 'info')
+    return redirect(url_for('login'))
+
+# Routes for application features
+@app.route('/landing')
+def landing():
+    if 'badge_number' not in session:
+        return redirect(url_for('login'))
+    return render_template('landing.html')
+
 @app.route('/get_alerts')
 def get_alerts():
     global alerts
@@ -345,39 +477,61 @@ def get_alerts():
 
 @app.route('/suspects')
 def get_suspects():
-    # Find all suspects in the database
-    suspects = list(collection.find({}))
-    # Convert the ObjectId to string for each document
-    for suspect in suspects:
-        suspect['_id'] = str(suspect['_id'])
-        # Convert binary image data to base64 for display in HTML
-        if 'detected_image' in suspect:
-            import base64
-            suspect['image_b64'] = base64.b64encode(suspect['detected_image']).decode('utf-8')
-    
-    return render_template('suspects.html', suspects=suspects)
-
-@app.route('/')
-def login():
-    return render_template('login.html')
-
-@app.route('/landing')
-def landing():
-    return render_template('landing.html')
+    if 'badge_number' not in session:
+        return redirect(url_for('login'))
+        
+    try:
+        db = db_session()
+        suspects = db.query(Suspect).order_by(Suspect.detected_time.desc()).all()
+        
+        # Add base64 image data for each suspect
+        suspects_with_images = []
+        for suspect in suspects:
+            suspect_dict = {
+                'id': suspect.id,
+                'suspect_name': suspect.suspect_name,
+                'image_path': suspect.image_path,
+                'detected_time': suspect.detected_time,
+                'created_at': suspect.created_at
+            }
+            
+            try:
+                with open(suspect.image_path, 'rb') as img_file:
+                    img_data = img_file.read()
+                    suspect_dict['image_b64'] = base64.b64encode(img_data).decode('utf-8')
+            except Exception as e:
+                print(f"Error reading image file: {e}")
+                suspect_dict['image_b64'] = ''
+                
+            suspects_with_images.append(suspect_dict)
+        
+        return render_template('suspects.html', suspects=suspects_with_images)
+    except Exception as e:
+        flash(f'Error retrieving suspects: {str(e)}', 'error')
+        return redirect(url_for('landing'))
+    finally:
+        db.close()
 
 @app.route('/live-mon')
 def live_mon():
+    if 'badge_number' not in session:
+        return redirect(url_for('login'))
     global alerts
     alerts = []  # Clear previous alerts
     return render_template("livemon.html")
 
 @app.route('/video_feed')
 def video_feed():
+    if 'badge_number' not in session:
+        return redirect(url_for('login'))
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/delete_face', methods=['GET', 'POST'])
 def delete_face():
-    embeddings_path = "embeddings.pkl"
+    if 'badge_number' not in session:
+        return redirect(url_for('login'))
+        
+    embeddings_path = EMBEDDINGS_FILE
     
     # Load existing data
     try:
@@ -400,13 +554,17 @@ def delete_face():
 
     return render_template("delete_face.html", names=list(embeddings.keys()), message=None)
 
-
 @app.route('/contact')
 def contact():
+    if 'badge_number' not in session:
+        return redirect(url_for('login'))
     return render_template('contact.html')
 
 @app.route('/new-crim', methods=['GET', 'POST'])
 def newcrim():
+    if 'badge_number' not in session:
+        return redirect(url_for('login'))
+        
     if request.method == 'POST':
         name = request.form.get("name")
         file = request.files["video"]
@@ -421,5 +579,11 @@ def newcrim():
 
     return render_template('newcrim.html')
 
+# Cleanup function for the application
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    db_session.remove()
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0",debug=True)
+    init_db()  # Initialize database tables on startup
+    app.run(host="0.0.0.0", debug=True)

@@ -1,166 +1,211 @@
-:root {
-    --primary-blue: #0a192f;
-    --secondary-blue: #172a45;
-    --accent-cyber: #64ffda;
-    --text-primary: #e6f1ff;
-    --text-secondary: #8892b0;
-    --error-red: #ff5555;
-    --success-green: #50fa7b;
-}
+/* login.css - Place this in your static folder */
 
-@font-face {
-    font-family: 'Jejumongjyu';
-    src: url('path-to-jejumongjyu-font.woff2') format('woff2');
+:root {
+    --primary-color: #213b7e;
+    --secondary-color: #334f8d;
+    --accent-color: #f6bd60;
+    --text-light: #ffffff;
+    --text-dark: #1a2639;
+    --error-color: #d62828;
+    --success-color: #57a773;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Italiana', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
+    background: linear-gradient(135deg, #1a2639 0%, #213b7e 100%);
+    background-size: cover;
+    background-attachment: fixed;
     min-height: 100vh;
-    background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
-    color: var(--text-primary);
-    font-family: 'Arial', sans-serif;
-    line-height: 1.6;
+    color: var(--text-light);
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../static/bg-pattern.png');
+    background-size: cover;
+    opacity: 0.1;
+    z-index: -1;
 }
 
 .container {
+    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 20px;
 }
 
 .header {
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 40px;
 }
 
 .header h1 {
-    font-family: 'Arial', serif;
-    font-size: 3.5rem;
-    margin-bottom: 0.5rem;
-    text-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+    font-size: 48px;
+    letter-spacing: 2px;
+    color: var(--accent-color);
+    margin-bottom: 10px;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .subtitle {
-    font-family: 'Jejumongjyu', sans-serif;
-    color: var(--accent-cyber);
-    font-size: 1.2rem;
+    font-size: 18px;
     letter-spacing: 1px;
+    opacity: 0.8;
 }
 
 .login-container {
-    max-width: 500px;
-    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 50vh;
 }
 
-.login-form {
-    background: rgba(23, 42, 69, 0.7);
+.login-form, .registration-form {
+    background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
-    padding: 2rem;
-    border-radius: 10px;
-    border: 1px solid rgba(100, 255, 218, 0.1);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 450px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.login-form h2, .registration-form h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: var(--accent-color);
+    font-size: 28px;
+    letter-spacing: 1px;
 }
 
 .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 25px;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 0.5rem;
-    color: var(--accent-cyber);
-    font-weight: 500;
+    margin-bottom: 8px;
+    font-size: 16px;
+    letter-spacing: 0.5px;
 }
 
-.form-group input {
+.form-group input, .form-group select {
     width: 100%;
-    padding: 0.8rem;
-    background: rgba(10, 25, 47, 0.7);
-    border: 1px solid rgba(100, 255, 218, 0.2);
-    border-radius: 5px;
-    color: var(--text-primary);
-    font-size: 1rem;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-light);
+    font-size: 16px;
     transition: all 0.3s ease;
 }
 
-.form-group input:focus {
+.form-group input:focus, .form-group select:focus {
     outline: none;
-    border-color: var(--accent-cyber);
-    box-shadow: 0 0 5px rgba(100, 255, 218, 0.3);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(246, 189, 96, 0.3);
+}
+
+.form-group small {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    opacity: 0.7;
 }
 
 .login-btn {
     width: 100%;
-    padding: 1rem;
-    background: transparent;
-    border: 1px solid var(--accent-cyber);
-    color: var(--accent-cyber);
-    border-radius: 5px;
-    font-size: 1.1rem;
-    font-weight: 500;
+    padding: 14px;
+    background: var(--accent-color);
+    color: var(--text-dark);
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
     cursor: pointer;
+    letter-spacing: 1px;
     transition: all 0.3s ease;
+    margin-top: 10px;
 }
 
 .login-btn:hover {
-    background: rgba(100, 255, 218, 0.1);
+    background: #e9ae50;
     transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-.profile-container {
-    background: rgba(23, 42, 69, 0.7);
-    backdrop-filter: blur(10px);
-    padding: 2rem;
-    border-radius: 10px;
-    border: 1px solid rgba(100, 255, 218, 0.1);
+.login-btn:active {
+    transform: translateY(0);
 }
 
-.profile-header {
+.register-link {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-top: 25px;
 }
 
-.profile-image {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    border: 3px solid var(--accent-cyber);
-    margin-bottom: 1rem;
+.register-link a {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
-.badge-number {
-    color: var(--accent-cyber);
-    font-family: 'Jejumongjyu', sans-serif;
-    margin-top: 0.5rem;
+.register-link a:hover {
+    text-decoration: underline;
 }
 
-.navigate-btn {
-    display: block;
-    width: fit-content;
-    margin: 20px auto;
-    padding: 12px 24px;
-    font-size: 18px;
-    font-weight: bold;
-    color: #fff;
-    background-color: #004080;
-    border: none;
+.alert {
+    padding: 10px 15px;
+    margin-bottom: 20px;
     border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
-    text-align: center;
+    font-size: 14px;
 }
 
-.navigate-btn:hover {
-    background-color: #002b5e;
-    transform: scale(1.05);
+.alert-error {
+    background-color: rgba(214, 40, 40, 0.2);
+    border: 1px solid rgba(214, 40, 40, 0.4);
+    color: #ff9494;
 }
 
-.navigate-btn:active {
-    transform: scale(0.95);
-    background-color: #001a3a;
+.alert-success {
+    background-color: rgba(87, 167, 115, 0.2);
+    border: 1px solid rgba(87, 167, 115, 0.4);
+    color: #a0e7b5;
+}
+
+.alert-info {
+    background-color: rgba(65, 157, 199, 0.2);
+    border: 1px solid rgba(65, 157, 199, 0.4);
+    color: #a0d2e7;
+}
+
+@media (max-width: 768px) {
+    .login-form, .registration-form {
+        padding: 30px 20px;
+    }
+
+    .header h1 {
+        font-size: 36px;
+    }
+
+    .subtitle {
+        font-size: 16px;
+    }
 }

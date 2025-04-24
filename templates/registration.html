@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Officer Registration - Smart Policing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Italiana&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <style>
+        .registration-form {
+            max-width: 500px;
+        }
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+        .form-col {
+            flex: 1;
+        }
+        .back-link {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .back-link a {
+            color: #4A90E2;
+            text-decoration: none;
+        }
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Smart Policing</h1>
+            <p class="subtitle">Officer Registration Portal</p>
+        </header>
+
+        <main class="login-container">
+            <div class="login-form registration-form">
+                <h2>New Officer Registration</h2>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <form action="{{ url_for('register_post') }}" method="POST">
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="badge_number">Badge Number</label>
+                                <input type="text" id="badge_number" name="badge_number" required 
+                                      pattern="KG[0-9]{4}" 
+                                      title="Please enter valid Cyber Division badge number (e.g., KG1234)">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="full_name">Full Name</label>
+                                <input type="text" id="full_name" name="full_name" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rank">Rank/Position</label>
+                        <select id="rank" name="rank" required>
+                            <option value="">Select Rank</option>
+                            <option value="Cyber Crime Specialist">Cyber Crime Specialist</option>
+                            <option value="Lead Digital Investigator">Lead Digital Investigator</option>
+                            <option value="Digital Forensics Expert">Digital Forensics Expert</option>
+                            <option value="Security Analyst">Security Analyst</option>
+                            <option value="Cyber Intelligence Officer">Cyber Intelligence Officer</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" id="password" name="password" required minlength="8">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="confirm_password">Confirm Password</label>
+                                <input type="password" id="confirm_password" name="confirm_password" required minlength="8">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="division_code">Division Access Code</label>
+                        <input type="password" id="division_code" name="division_code" required>
+                        <small>Request this code from your division supervisor</small>
+                    </div>
+
+                    <button type="submit" class="login-btn">
+                        Register
+                    </button>
+                </form>
+                <div class="back-link">
+                    <a href="{{ url_for('login') }}">← Back to Login</a>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
