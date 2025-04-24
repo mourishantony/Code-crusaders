@@ -11,556 +11,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Add EmailJS SDK -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <style>
-        /* Reset and Base Styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
-}
-
-body {
-    background-color: #f5f7fa;
-    color: #333;
-    line-height: 1.6;
-}
-
-/* Variables */
-:root {
-    --primary-color: #1e3a8a;
-    --secondary-color: #3b82f6;
-    --accent-color: #2563eb;
-    --light-color: #f0f4f8;
-    --dark-color: #1e293b;
-    --success-color: #10b981;
-    --card-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    --transition: all 0.3s ease;
-}
-
-/* Typography */
-h1, h2, h3 {
-    font-family: 'Montserrat', sans-serif;
-    color: var(--dark-color);
-    font-weight: 600;
-}
-
-.accent {
-    color: var(--accent-color);
-}
-
-/* Navigation */
-.glass-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.2rem 5%;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-color);
-}
-
-.logo i {
-    margin-right: 10px;
-    font-size: 1.8rem;
-}
-
-.nav-links {
-    display: flex;
-    list-style: none;
-}
-
-.nav-links li {
-    margin-left: 2rem;
-}
-
-.nav-links a {
-    text-decoration: none;
-    color: var(--dark-color);
-    font-weight: 500;
-    transition: var(--transition);
-    padding: 0.5rem 0.8rem;
-    border-radius: 4px;
-}
-
-.nav-links a:hover, 
-.nav-links a.active {
-    color: var(--accent-color);
-    background-color: rgba(37, 99, 235, 0.1);
-}
-
-.hamburger {
-    display: none;
-    cursor: pointer;
-}
-
-.bar {
-    display: block;
-    width: 25px;
-    height: 3px;
-    margin: 5px auto;
-    background-color: var(--dark-color);
-    transition: var(--transition);
-}
-
-/* Hero Section */
-.hero-section {
-    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-    color: white;
-    text-align: center;
-    padding: 5rem 10%;
-    margin-bottom: 3rem;
-}
-.accent {
-    color: #eb7b25;
-}
-
-.hero-section h1 {
-    font-size: 2.8rem;
-    color: white;
-    margin-bottom: 1rem;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.hero-section p {
-    font-size: 1.2rem;
-    max-width: 700px;
-    margin: 0 auto;
-    opacity: 0.9;
-}
-
-/* Main Content */
-main {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-/* Team Cards Section */
-.team-section {
-    margin-bottom: 4rem;
-}
-
-.team-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 10px;
-}
-
-.team-card {
-    height: 320px;
-    perspective: 1000px;
-    margin-bottom: 20px;
-    width: 250px;
-}
-
-.team-card-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.6s;
-    transform-style: preserve-3d;
-    border-radius: 12px;
-    box-shadow: var(--card-shadow);
-}
-
-.team-card:hover .team-card-inner {
-    transform: rotateY(180deg);
-}
-
-.team-card-front, .team-card-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-.team-card-front {
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-
-.team-card-front img {
-    width: 140px;
-    height: 140px;
-    object-fit: cover;
-    border-radius: 50%;
-    border: 3px solid white;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 15px;
-}
-
-.team-card-front h3 {
-    font-size: 1.3rem;
-    margin-bottom: 5px;
-    text-align: center;
-}
-
-.team-card-front p {
-    color: var(--accent-color);
-    font-weight: 500;
-    text-align: center;
-}
-
-.team-card-back {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
-    color: white;
-    transform: rotateY(180deg);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-
-.team-card-back h3 {
-    color: white;
-    font-size: 1.3rem;
-    margin-bottom: 5px;
-}
-
-.team-card-back p {
-    color: rgba(255, 255, 255, 0.8);
-    margin-bottom: 15px;
-}
-
-.contact-details {
-    margin: 15px 0;
-    width: 100%;
-}
-
-.contact-details p {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-    font-size: 0.9rem;
-}
-
-.contact-details i {
-    margin-right: 10px;
-    font-size: 1rem;
-}
-
-.social-links {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.social-links a {
-    color: white;
-    background-color: rgba(255, 255, 255, 0.2);
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition);
-}
-
-.social-links a:hover {
-    background-color: white;
-    color: var(--accent-color);
-    transform: translateY(-3px);
-}
-
-.contact-btn {
-    padding: 10px 20px;
-    background-color: white;
-    color: var(--accent-color);
-    border: none;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.contact-btn:hover {
-    background-color: rgba(255, 255, 255, 0.9);
-    transform: translateY(-3px);
-}
-
-/* Contact Form Section */
-.contact-form-section {
-    background-color: white;
-    padding: 3rem;
-    border-radius: 12px;
-    box-shadow: var(--card-shadow);
-    margin-bottom: 4rem;
-}
-
-.contact-form-section h2 {
-    text-align: center;
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-}
-
-.contact-form-section > p {
-    text-align: center;
-    color: #64748b;
-    margin-bottom: 2rem;
-}
-
-.contact-form {
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.form-row {
-    display: flex;
-    gap: 20px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-    flex: 1;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-}
-
-.form-group input,
-.form-group textarea {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: var(--transition);
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
-    outline: none;
-}
-
-.submit-btn {
-    display: block;
-    width: 100%;
-    max-width: 200px;
-    margin: 0 auto;
-    padding: 12px 20px;
-    background-color: var(--accent-color);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.submit-btn:hover {
-    background-color: var(--primary-color);
-    transform: translateY(-3px);
-}
-
-/* Footer */
-footer {
-    background-color: var(--dark-color);
-    color: white;
-    padding: 3rem 5% 1rem;
-}
-
-.footer-content {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 30px;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.footer-logo {
-    display: flex;
-    align-items: center;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: white;
-    margin-bottom: 1rem;
-}
-
-.footer-logo i {
-    margin-right: 10px;
-}
-
-.footer-links h3,
-.footer-contact h3,
-.footer-social h3 {
-    color: white;
-    margin-bottom: 1.2rem;
-    font-size: 1.2rem;
-}
-
-.footer-links ul {
-    list-style: none;
-}
-
-.footer-links li {
-    margin-bottom: 0.8rem;
-}
-
-.footer-links a,
-.footer-social a {
-    color: #cbd5e1;
-    text-decoration: none;
-    transition: var(--transition);
-}
-
-.footer-links a:hover,
-.footer-social a:hover {
-    color: white;
-}
-
-.footer-contact p {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
-    color: #cbd5e1;
-}
-
-.footer-contact i {
-    margin-right: 10px;
-    color: var(--secondary-color);
-}
-
-.social-icons {
-    display: flex;
-    gap: 15px;
-}
-
-.social-icons a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    transition: var(--transition);
-}
-
-.social-icons a:hover {
-    background-color: var(--accent-color);
-    transform: translateY(-3px);
-}
-
-.footer-bottom {
-    text-align: center;
-    padding-top: 2rem;
-    margin-top: 2rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Responsive Design */
-@media screen and (max-width: 768px) {
-    .hamburger {
-        display: block;
-    }
     
-    .hamburger.active .bar:nth-child(2) {
-        opacity: 0;
-    }
-    
-    .hamburger.active .bar:nth-child(1) {
-        transform: translateY(8px) rotate(45deg);
-    }
-    
-    .hamburger.active .bar:nth-child(3) {
-        transform: translateY(-8px) rotate(-45deg);
-    }
-    
-    .nav-links {
-        position: fixed;
-        left: -100%;
-        top: 70px;
-        flex-direction: column;
-        background-color: white;
-        width: 100%;
-        text-align: center;
-        transition: 0.3s;
-        box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
-        padding: 20px 0;
-    }
-    
-    .nav-links.active {
-        left: 0;
-    }
-    
-    .nav-links li {
-        margin: 10px 0;
-    }
-    
-    .hero-section h1 {
-        font-size: 2.2rem;
-    }
-    
-    .form-row {
-        flex-direction: column;
-        gap: 0;
-    }
-    
-    .contact-form-section {
-        padding: 2rem 1rem;
-    }
-    
-    .team-container {
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    }
-    
-    .team-card {
-        height: 280px;
-    }
-    
-    .team-card-front img {
-        width: 120px;
-        height: 120px;
-    }
-}
-
-/* Animations */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-.team-card {
-    animation: fadeIn 0.6s ease forwards;
-}
-    </style>
 </head>
 <body>
     <header>
         <nav class="glass-nav">
             <div class="logo">
                 <i class="fas fa-shield-alt"></i>
-                <span>SmartPolice AI</span>
+                <span>Smart Policing System</span>
             </div>
             <ul class="nav-links">
                 <li><a href="landing">Home</a></li>
@@ -590,7 +48,7 @@ footer {
                 <div class="team-card">
                     <div class="team-card-inner">
                         <div class="team-card-front">
-                            <img src="static/images/Mou\rish.jpg" alt="Officer Dhanwin S">
+                            <img src="static/images/Mourish.jpg" alt="Officer Dhanwin S">
                             <h3>Mourish Antony</h3>
                             <p>Lead Digital Investigator</p>
                         </div>
@@ -605,7 +63,7 @@ footer {
                                 <a href="https://www.linkedin.com/in/mourish-a-6b51b0301?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"><i class="fab fa-linkedin"></i></a>
                                 <a href="https://www.instagram.com/mourish_antony_?igsh=MWxsbndzemZldGllZg=="><i class="fab fa-instagram"></i></a>
                             </div>
-                            <button class="contact-btn">Contact Now</button>
+                            <a href="#contact"> <button class="contact-btn">Contact Now</button></a>
                         </div>
                     </div>
                 </div>
@@ -614,7 +72,7 @@ footer {
                 <div class="team-card">
                     <div class="team-card-inner">
                         <div class="team-card-front">
-                            <img src="static/images/Roo\bika.jpg" alt="Roobika">
+                            <img src="static/images/Roobika.jpg" alt="Roobika">
                             <h3>Roobika M</h3>
                             <p>Cyber Crime Specialist</p>
                         </div>
@@ -629,7 +87,7 @@ footer {
                                 <a href="https://www.linkedin.com/in/harini-m-aa6a78315?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"><i class="fab fa-linkedin"></i></a>
                                 <a href="https://www.instagram.com/winter_007h?igsh=MWw2b2p4Ymo5MXR4Mg=="><i class="fab fa-instagram"></i></a>
                             </div>
-                            <button class="contact-btn">Contact Now</button>
+                            <a href="#contact"> <button class="contact-btn">Contact Now</button></a>
                         </div>
                     </div>
                 </div>
@@ -638,7 +96,7 @@ footer {
                 <div class="team-card">
                     <div class="team-card-inner">
                         <div class="team-card-front">
-                            <img src="static/images/harshi\ni.jpg" alt="Officer Arvinth U">
+                            <img src="static/images/harshini.jpg" alt="Officer Arvinth U">
                             <h3>Harshini A</h3>
                             <p>Forensic Analyst</p>
                         </div>
@@ -653,7 +111,7 @@ footer {
                                 <a href="#"><i class="fab fa-linkedin"></i></a>
                                 <a href="#"><i class="fab fa-instagram"></i></a>
                             </div>
-                            <button class="contact-btn">Contact Now</button>
+                            <a href="#contact"> <button class="contact-btn">Contact Now</button></a>
                         </div>
                     </div>
                 </div>
@@ -662,7 +120,7 @@ footer {
                 <div class="team-card">
                     <div class="team-card-inner">
                         <div class="team-card-front">
-                            <img src="static/images/Tej\a.jpg" alt="Officer Vigneswaran P">
+                            <img src="static/images/maha.jpg" alt="Officer Vigneswaran P">
                             <h3>MahaDharshini S</h3>
                             <p>AI Systems Manager</p>
                         </div>
@@ -678,7 +136,7 @@ footer {
                                 <a href="https://www.linkedin.com/in/tejaashri-k-0610a9315?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"><i class="fab fa-linkedin"></i></a>
                                 <a href="https://www.instagram.com/tejaashri_uk57?igsh=MWtydnI4ZnEyNjhieQ=="><i class="fab fa-instagram"></i></a>
                             </div>
-                            <button class="contact-btn">Contact Now</button>
+                            <a href="#contact"> <button class="contact-btn">Contact Now</button></a>
                         </div>
                     </div>
                 </div>
@@ -686,13 +144,13 @@ footer {
                  <div class="team-card">
                     <div class="team-card-inner">
                         <div class="team-card-front">
-                            <img src="#" alt="Officer Kailainathan S">
+                            <img src="static/images/kailai.jpg" alt="Officer Kailainathan S">
                             <h3>Kailainathan S</h3>
-                            <p>Solid Snake</p>
+                            <p>AI Systems Manager</p>
                         </div>
                         <div class="team-card-back">
                             <h3>Kailainathan S</h3>
-                            <p>Solid Snake</p>
+                            <p>AI Systems Manager</p>
                             <div class="contact-details">
                                 <p><i class="fas fa-envelope"></i> kailainathan@smartpolice.gov</p>
                                 <p><i class="fas fa-phone"></i> +91 9843643664</p>
@@ -701,7 +159,9 @@ footer {
                                 <a href="#"><i class="fab fa-linkedin"></i></a>
                                 <a href="#"><i class="fab fa-instagram"></i></a>
                             </div>
-                            <button class="contact-btn">Contact Now</button>
+                            
+                            <a href="#contact"> <button class="contact-btn">Contact Now</button></a>
+                            
                         </div>
                     </div>
                 </div>
@@ -710,7 +170,7 @@ footer {
                 <div class="team-card">
                     <div class="team-card-inner">
                         <div class="team-card-front">
-                            <img src="#" alt="Officer Joe Daniel A">
+                            <img src="static/images/joe.jpg" alt="Officer Joe Daniel A">
                             <h3>Joe Daniel A</h3>
                             <p>Data Analysis Specialist</p>
                         </div>
@@ -725,13 +185,14 @@ footer {
                                 <a href="#"><i class="fab fa-linkedin"></i></a>
                                 <a href="#"><i class="fab fa-instagram"></i></a>
                             </div>
-                            <button class="contact-btn">Contact Now</button>
+                            <a href="#contact"> <button class="contact-btn">Contact Now</button></a>
+
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-
+    <section class="contact-form-section" id="contact">
         <section class="contact-form-section">
             <h2>Need Assistance? <span class="accent">Reach Out</span></h2>
             <p>Fill out the form below and our team will get back to you within 24 hours</p>
@@ -758,6 +219,7 @@ footer {
                 <button type="submit" class="submit-btn">Submit Request</button>
             </form>
         </section>
+    </section>
     </main>
     
     <footer>
@@ -786,8 +248,8 @@ footer {
             <div class="footer-social">
                 <h3>Connect With Us</h3>
                 <div class="social-icons">
-                    <a href="https://www.instagram.com/tech_trailblazers05?igsh=Z3Y3d2hjeDAycXg="><i class="fab fa-instagram"></i></a>
-                    <a href="https://www.linkedin.com/in/harini-m-aa6a78315?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
                 </div>
             </div>
         </div>
@@ -802,6 +264,13 @@ footer {
             // Replace with your actual EmailJS public key when you sign up
             emailjs.init("hISZ0CTcpAV_EU73E");
         })();
+        
+        document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+            hamburger.classList.remove('active');
+            navLinks.classList.remove('active');
+        });
+    });
         
         document.getElementById('contactForm').addEventListener('submit', function(event) {
             event.preventDefault(); // Prevent default form submission
@@ -826,12 +295,20 @@ footer {
                 subject: subject,
                 message: message
             };
+            // Toggle hamburger menu
+    const hamburger = document.querySelector(".hamburger");
+    const navLinks = document.querySelector(".nav-links");
+
+    hamburger.addEventListener("click", () => {
+        hamburger.classList.toggle("active");
+        navLinks.classList.toggle("active");
+    });
             
             // Send email using EmailJS
             emailjs.send('service_igmfv1m', 'template_yd95jkb', templateParams)
                 .then(function(response) {
                     console.log('SUCCESS!', response.status, response.text);
-                    alert(`Thank you for your message, ${name}! Your form has been submitted successfully.`);
+                    alert("Thank you for your message, ${name}! Your form has been submitted successfully.");
                     document.getElementById('contactForm').reset(); // Reset the form
                     
                     // Restore button state
