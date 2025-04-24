@@ -26,6 +26,7 @@ frozenlist==1.6.0
 fsspec==2025.3.2
 gast==0.6.0
 google-pasta==0.2.0
+greenlet==3.2.1
 grpcio==1.71.0
 h5py==3.13.0
 idna==3.10
@@ -49,6 +50,9 @@ ml_dtypes==0.5.1
 mpmath==1.3.0
 mtcnn==1.0.0
 multidict==6.4.3
+mysql==0.0.3
+mysql-connector-python==9.3.0
+mysqlclient==2.2.7
 namex==0.0.9
 networkx==3.4.2
 numpy==1.26.4
@@ -74,6 +78,7 @@ scipy==1.15.2
 sentencepiece==0.2.0
 six==1.17.0
 sounddevice==0.5.1
+SQLAlchemy==2.0.40
 sympy==1.13.3
 tensorboard==2.19.0
 tensorboard-data-server==0.7.2
