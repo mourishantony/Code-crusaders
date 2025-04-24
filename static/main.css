@@ -8,10 +8,11 @@
 }
 
 body {
-    background-color: #f5f7fa;
+    background-color: #ffffff; 
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     color: #333;
-    line-height: 1.6;
-    overflow-x: hidden;
 }
 
 /* Variables */
@@ -49,12 +50,6 @@ header {
     position: sticky;
     top: 0;
     z-index: 100;
-    padding: 10px 0;
-}
-
-.header {
-    text-align: center;
-    padding: 40px 0 20px;
 }
 
 .header h1 {
@@ -78,55 +73,47 @@ header {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Glass Navigation */
 .glass-nav {
-    background: rgba(26, 35, 126, 0.95);
-    backdrop-filter: blur(10px);
-    padding: 1.2rem 5%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 1rem 2rem;
+    background: rgb(26, 35, 126, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
 .logo {
-    color: white;
-    font-size: 1.5rem;
-    font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    color: white;
+    font-weight: 600;
+    font-size: 1.3rem;
 }
 
 .logo i {
-    color: var(--accent-color);
+    margin-right: 10px;
+    font-size: 24px;
 }
 
 .nav-links {
     display: flex;
     list-style: none;
-    gap: 2rem;
 }
 
-.nav-links li a {
+.nav-links li {
+    margin-left: 2rem;
+}
+
+.nav-links a {
     color: white;
     text-decoration: none;
     font-weight: 500;
-    font-size: 1.1rem;
-    transition: var(--transition);
-    padding: 0.5rem 0.8rem;
-    border-radius: 4px;
+    transition: color 0.3s ease;
 }
 
-.nav-links li a:hover,
-.nav-links li a.active {
-    color: var(--accent-color);
-    background-color: rgba(255, 255, 255, 0.1);
+.nav-links a:hover, .nav-links a.active {
+    color: #4db5ff;
 }
 
 .user-info {

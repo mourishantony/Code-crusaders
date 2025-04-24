@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delete Criminal Data - Smart Policing</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='contact.css') }}">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='newcrim.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,13 +19,18 @@
                 <span>SmartPolice AI</span>
             </div>
             <ul class="nav-links">
-                <li><a href="landing">Home</a></li>
-                <li><a href="live-mon">Live Monitoring</a></li>
-                <li><a href="new-crim">Insert Data</a></li>
-                <li><a href="delete_face" class="active">Remove-criminal</a></li>
-                <li><a href="suspects">Database</a></li>
-                <li><a href="contact">Contact</a></li>
+                <li><a href="{{ url_for('landing') }}">Home</a></li>
+                <li><a href="{{ url_for('live_mon') }}">Live Monitoring</a></li>
+                <li><a href="{{ url_for('newcrim') }}">Insert-video</a></li>
+                <li><a href="{{ url_for('delete_face') }}">Remove-criminal</a></li>
+                <li><a href="{{ url_for('get_suspects') }}">Database</a></li>
+                <li><a href="{{ url_for('contact') }}">Contact</a></li>
+                <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
+            <div class="user-info">
+                <i class="fas fa-user-shield"></i>
+                <span>{{ session.full_name }}</span>
+            </div>
             <div class="hamburger">
                 <span class="bar"></span>
                 <span class="bar"></span>

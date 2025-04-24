@@ -3,52 +3,48 @@
 
 /* Reset and base styles */
 * {
-    margin: 0;
+    margin: 0; 
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
 }
 
 body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #f5f7fa;
-    color: #333;
-    line-height: 1.6;
+    background-color: #f5f5f5; 
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    color: #333;
 }
 
 /* Header Styles - Matching contact.html */
 header {
-    position: relative;
-    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 .glass-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 5%;
-    background: rgba(26, 35, 126, 0.9);
+    padding: 1rem 2rem;
+    background: rgb(26, 35, 126, 0.95);
     backdrop-filter: blur(10px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000;
-    transition: all 0.3s ease;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
 .logo {
     display: flex;
     align-items: center;
-    gap: 10px;
-    color: #fff;
+    color: white;
+    font-weight: 600;
+    font-size: 1.3rem;
 }
 
 .logo i {
-    font-size: 1.5rem;
+    margin-right: 10px;
+    font-size: 24px;
 }
 
 .logo span {
@@ -59,33 +55,42 @@ header {
 
 .nav-links {
     display: flex;
-    gap: 2rem;
     list-style: none;
 }
 
+.nav-links li {
+    margin-left: 2rem;
+}
+
 .nav-links a {
-    color: #fff;
+    color: white;
     text-decoration: none;
     font-weight: 500;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    transition: all 0.3s ease;
+    transition: color 0.3s ease;
 }
 
-.nav-links a:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.nav-links a.active {
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
+.nav-links a:hover, .nav-links a.active {
+    color: #4db5ff;
 }
 
 .hamburger {
     display: none;
     cursor: pointer;
 }
+.user-info {
+    display: flex;
+    align-items: center;
+    color: white;
+    font-size: 0.9rem;
+    padding: 0.5rem 0.8rem;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.1);
+}
 
+.user-info i {
+    margin-right: 8px;
+    color: var(--accent-color);
+}
 .bar {
     display: block;
     width: 25px;
@@ -97,9 +102,9 @@ header {
 
 /* Hero Section */
 .hero-section {
-    padding: 8rem 5% 4rem;
-    background: linear-gradient(135deg, #1a237e, #3f51b5);
-    color: #fff;
+    background: linear-gradient(135deg, #253867 0%, #1a3a8f 100%);
+    color: white;
+    padding: 4rem 2rem;
     text-align: center;
 }
 

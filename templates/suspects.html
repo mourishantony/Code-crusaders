@@ -26,7 +26,7 @@
             </ul>
             <div class="user-info">
                 <i class="fas fa-user-shield"></i>
-                <span>{{ session.full_name }} ({{ session.badge_number }})</span>
+                <span>{{ session.full_name }}</span>
             </div>
             <div class="hamburger">
                 <span class="bar"></span>
@@ -35,13 +35,13 @@
             </div>
         </nav>
     </header>
+    <div style="background: linear-gradient(135deg, #253867 0%, #1a3a8f 100%);color: white;text-align:center;height:150px;align-item:center;padding-top:2%;">
+        <h1>Suspects Database</h1>
+        <p>Records of all detected individuals in the system</p>
+    </div>
 
     <main class="container">
-        <section class="page-header">
-            <h1>Suspects Database</h1>
-            <p>Records of all detected individuals in the system</p>
-        </section>
-
+        
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}

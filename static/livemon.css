@@ -8,7 +8,7 @@
         }
         
         body {
-            background-color: #f5f5f5;
+            background-color: #f5f5f5; 
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -75,7 +75,20 @@
             display: none;
             cursor: pointer;
         }
+        .user-info {
+            display: flex;
+            align-items: center;
+            color: white;
+            font-size: 0.9rem;
+            padding: 0.5rem 0.8rem;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
         
+        .user-info i {
+            margin-right: 8px;
+            color: var(--accent-color);
+        }
         .bar {
             display: block;
             width: 25px;
@@ -90,7 +103,7 @@
             background: linear-gradient(135deg, #253867 0%, #1a3a8f 100%);
             color: white;
             padding: 4rem 2rem;
-            text-align: center;
+            text-align: center;  
         }
         
         .hero-section h1 {

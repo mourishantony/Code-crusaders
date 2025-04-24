@@ -21,13 +21,18 @@
                 <span>Smart Policing System</span>
             </div>
             <ul class="nav-links">
-                <li><a href="landing">Home</a></li>
-                <li><a href="live-mon">Live Monitoring</a></li>
-                <li><a href="new-crim">Insert Data</a></li>
-                <li><a href="delete_face">Remove-criminal</a></li>
-                <li><a href="suspects">Database</a></li>
-                <li><a href="contact" class="active">Contact</a></li>
+                <li><a href="{{ url_for('landing') }}">Home</a></li>
+                <li><a href="{{ url_for('live_mon') }}">Live Monitoring</a></li>
+                <li><a href="{{ url_for('newcrim') }}">Insert-video</a></li>
+                <li><a href="{{ url_for('delete_face') }}">Remove-criminal</a></li>
+                <li><a href="{{ url_for('get_suspects') }}">Database</a></li>
+                <li><a href="{{ url_for('contact') }}">Contact</a></li>
+                <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
+            <div class="user-info">
+                <i class="fas fa-user-shield"></i>
+                <span>{{ session.full_name }}</span>
+            </div>
             <div class="hamburger">
                 <span class="bar"></span>
                 <span class="bar"></span>
@@ -39,7 +44,7 @@
     <div class="hero-section">
         <h1>Connect With Our <span class="accent">Expert Team</span></h1>
         <p>Dedicated professionals working around the clock to ensure your safety and security</p>
-    </div>
+    </div> 
     
     <main>
         <section class="team-section">
