@@ -11,6 +11,7 @@ body {
     color: #333;
     line-height: 1.6;
     overflow-x: hidden;
+    max-width: 100%;
 }
 
 /* Variables */ 
@@ -41,6 +42,7 @@ header {
     position: sticky;
     top: 0;
     z-index: 100;
+    width: 100%;
 }
 
 .glass-nav {
@@ -48,9 +50,10 @@ header {
     justify-content: space-between;
     align-items: center;
     padding: 1rem 2rem;
-    background: rgb(26, 35, 126, 0.95);
+    background: rgba(26, 35, 126, 0.95);
     backdrop-filter: blur(10px);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
 }
 
 .logo {
@@ -117,32 +120,35 @@ header {
 
 /* Hero Section */
 .hero-section {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)), url('/api/placeholder/1920/1080') center/cover;
-    height: 100vh;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    min-height: calc(100vh - 70px); /* Subtract nav height */
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
     color: white;
+    padding: 3rem 1rem;
     margin-bottom: 0;
     position: relative;
+    width: 100%;
 }
 
 .hero-content {
     max-width: 800px;
-    padding: 0 2rem;
+    padding: 0 1rem;
+    width: 100%;
 }
 
 .hero-content h1 {
-    font-size: 4rem;
+    font-size: 3.5rem;
     font-weight: 700;
     letter-spacing: 2px;
     margin-bottom: 1rem;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     display: inline-block;
     border-right: 2rem solid var(--accent-color);
-    overflow: hidden;
     white-space: nowrap;
+    overflow: hidden;
     animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
 }
 
@@ -171,15 +177,16 @@ header {
 
 /* Features Section */
 #features {
-    padding: 8rem 2rem;
+    padding: 5rem 1rem;
     background: #f5f7fa;
+    width: 100%;
 }
 
 .section-title {
     text-align: center;
     font-size: 2.5rem;
     font-weight: 700;
-    margin-bottom: 4rem;
+    margin-bottom: 3rem;
     letter-spacing: 2px;
     color: var(--primary-color);
     position: relative;
@@ -205,10 +212,11 @@ header {
     display: flex;
     gap: 2rem;
     margin-bottom: 2rem;
+    flex-wrap: wrap;
 }
 
 .feature-card {
-    flex: 1;
+    flex: 1 1 300px;
     background: white;
     padding: 2rem;
     border-radius: 10px;
@@ -216,7 +224,8 @@ header {
     transition: var(--transition);
     display: flex;
     align-items: flex-start;
-    gap: 2.5rem;
+    gap: 1.5rem;
+    min-width: 280px;
 }
 
 .feature-card:hover {
@@ -231,6 +240,7 @@ header {
     padding: 1rem;
     border-radius: 10px;
     transition: var(--transition);
+    flex-shrink: 0;
 }
 
 .feature-card:hover .feature-icon {
@@ -246,8 +256,9 @@ header {
 
 /* About Section */
 #about {
-    padding: 8rem 2rem;
+    padding: 5rem 1rem;
     background: #f0f4f8;
+    width: 100%;
 }
 
 .about-wrapper {
@@ -258,7 +269,7 @@ header {
 .about-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 4rem;
+    gap: 3rem;
     align-items: center;
 }
 
@@ -297,7 +308,8 @@ header {
 }
 
 .learn-more {
-    padding: 1rem 2rem;
+    display: inline-block;
+    padding: 0.8rem 1.5rem;
     background: var(--primary-color);
     color: white;
     border: none;
@@ -305,23 +317,25 @@ header {
     cursor: pointer;
     transition: var(--transition);
     font-weight: 500;
+    text-decoration: none;
 }
 
 .learn-more:hover {
     background: var(--accent-color);
     transform: translateY(-3px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    color: white;
 }
 
 .tech-stats {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 1.5rem;
 }
 
 .stat-item {
     background: white;
-    padding: 2rem;
+    padding: 1.5rem;
     border-radius: 10px;
     text-align: center;
     box-shadow: var(--card-shadow);
@@ -350,7 +364,8 @@ header {
 footer {
     background: var(--dark-color);
     color: white;
-    padding: 3rem 5% 1rem;
+    padding: 3rem 1rem 1rem;
+    width: 100%;
 }
 
 .footer-content {
@@ -421,7 +436,7 @@ footer {
 
 .footer-contact p {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 1rem;
     color: #cbd5e1;
 }
@@ -429,11 +444,13 @@ footer {
 .footer-contact i {
     margin-right: 10px;
     color: var(--accent-color);
+    margin-top: 5px;
 }
 
 .social-icons {
     display: flex;
     gap: 15px;
+    flex-wrap: wrap;
 }
 
 .social-icons a {
@@ -446,6 +463,7 @@ footer {
     border-radius: 50%;
     transition: var(--transition);
     color: white;
+    text-decoration: none;
 }
 
 .social-icons a:hover {
@@ -461,9 +479,21 @@ footer {
 }
 
 /* Responsive Design */
+@media (max-width: 992px) {
+    .about-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .tech-stats {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
 @media (max-width: 768px) {
     .hamburger {
         display: block;
+        z-index: 101;
     }
     
     .hamburger.active .bar:nth-child(2) {
@@ -489,6 +519,7 @@ footer {
         transition: 0.3s;
         box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
         padding: 20px 0;
+        z-index: 100;
     }
     
     .nav-links.active {
@@ -499,34 +530,95 @@ footer {
         margin: 10px 0;
     }
     
-    .features-row {
-        flex-direction: column;
-    }
-    
-    .about-grid {
-        grid-template-columns: 1fr;
+    .user-info {
+        display: none;
     }
     
     .hero-content h1 {
         font-size: 2.5rem;
+        border-right-width: 1rem;
     }
     
-    .hero-content .subtitle {
-        font-size: 1.2rem;
+    .feature-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .tech-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .hero-section {
+        padding: 2rem 0.5rem;
     }
 }
 
 @media (max-width: 576px) {
     .hero-content h1 {
         font-size: 2rem;
+        border-right-width: 0.5rem;
+    }
+    
+    .hero-content .subtitle {
+        font-size: 1.1rem;
     }
     
     .section-title {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
     
     .about-text h3 {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
+    }
+    
+    .glass-nav {
+        padding: 0.8rem 1rem;
+    }
+    
+    .logo span {
+        font-size: 1.1rem;
+    }
+    
+    .feature-card {
+        padding: 1.5rem;
+    }
+    
+    .footer-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Portrait specific fixes */
+@media (orientation: portrait) {
+    .hero-section {
+        min-height: calc(100vh - 70px);
+        width: 100%;
+        display: flex;
+        align-items: center;
+        padding: 2rem 0.5rem;
+    }
+    
+    .hero-content h1 {
+        font-size: calc(1.5rem + 2vw);
+        border-right-width: 0.8rem;
+        white-space: normal;
+        overflow: visible;
+        border-right: none;
+        animation: fadeIn 1s ease-in forwards;
+    }
+    
+    .subtitle {
+        font-size: calc(0.9rem + 1vw);
+    }
+    
+    main {
+        overflow-x: hidden;
+        width: 100%;
+    }
+    
+    #features, #about {
+        padding: 3rem 1rem;
     }
 }
 
