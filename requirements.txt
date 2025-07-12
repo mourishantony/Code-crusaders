@@ -9,3 +9,4 @@ twilio==9.5.2
 Werkzeug==2.3.6
 tensorflow>=2.11.0
 gunicorn==21.2.0
+python-dotenv==1.0.1
