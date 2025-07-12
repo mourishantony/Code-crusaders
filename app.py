@@ -8,6 +8,8 @@ import pickle
 from datetime import datetime, timedelta
 import time
 import ssl
+from dotenv import load_dotenv
+load_dotenv()
 import threading
 from queue import Queue
 from twilio.rest import Client
@@ -45,18 +47,18 @@ session_factory = sessionmaker(bind=engine)
 db_session = scoped_session(session_factory)
 
 # Division access code for registration
-DIVISION_ACCESS_CODE = "SPD2025"  # Change this to a secure code
+DIVISION_ACCESS_CODE = os.getenv("DIVISION_ACCESS_CODE")  # Change this to a secure code
 
 # Email Configuration
-EMAIL_SENDER = 'mourishantonyc@gmail.com'
-EMAIL_PASSWORD = 'hmxn wppp myla mhkc'
-EMAIL_RECEIVER = 'rajmourishantony@gmail.com'
+EMAIL_SENDER = os.getenv("EMAIL_ADDRESS")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+EMAIL_RECEIVER = os.getenv("RECIPIENT_EMAIL")
 
 # Twilio Configuration
-TWILIO_ACCOUNT_SID = 'ACb12d8abd2288f3d831aa9003bc7ff69e'
-TWILIO_AUTH_TOKEN = '783f05428cca6ca85710e8780c446c61'    
-TWILIO_PHONE_NUMBER = '+18596591506'      
-RECIPIENT_PHONE_NUMBER = '+916381032833' 
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_PHONE_NUMBER = os.getenv("TWILIO_FROM_NUMBER")
+RECIPIENT_PHONE_NUMBER = os.getenv("TWILIO_TO_NUMBER")
 
 # Directories
 DETECTED_FACES_FOLDER = os.path.join(BASE_PATH, "detected_faces")
@@ -218,8 +220,8 @@ def process_alerts():
             session.close()
 
             # Play alert sound
-            alert_sound_path = os.path.join(BASE_PATH, "static", "alert.mp3")
-            playsound(alert_sound_path)
+            # alert_sound_path = os.path.join(BASE_PATH, "static", "alert.mp3")
+            # playsound(alert_sound_path)
 
             # Send Email
             send_email_alert(name, timestamp, face_path)
