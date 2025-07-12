@@ -1,4 +1,43 @@
+        /* Add these styles to your existing livemon.css */
+        .detection-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
 
+        .detection-box {
+            position: absolute;
+            border: 2px solid #ff0000;
+            background: transparent;
+            z-index: 10;
+        }
+
+        .detection-label {
+            position: absolute;
+            top: -25px;
+            left: 0;
+            background: #ff0000;
+            color: white;
+            padding: 2px 8px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+
+        #videoFeed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none; /* Hidden by default until camera starts */
+        }
+                
+        
+        
         /* General styles */
         * {
             margin: 0;

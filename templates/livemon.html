@@ -53,16 +53,23 @@
                 
                 <div class="camera-container">
                     <div class="camera-feed" id="camera-feed">
-                        <img id="videoFeed" src="{{ url_for('video_feed') }}" alt="Live Surveillance Feed">
+                        <video id="videoFeed" autoplay muted playsinline></video>
+                        <canvas id="canvas" style="display: none;"></canvas>
+                        <div class="camera-placeholder" id="camera-placeholder">
+                            <i class="fas fa-video-slash"></i>
+                            <p>Camera Not Started</p>
+                        </div>
                         <div class="timestamp" id="timestamp"></div>
-                        <div class="recording-indicator">
+                        <div class="recording-indicator" id="recording-indicator" style="display: none;">
                             <div class="recording-dot"></div>
                             <span>REC</span>
                         </div>
+                        <!-- Face detection overlay -->
+                        <div id="detection-overlay" class="detection-overlay"></div>
                     </div>
                     <div class="status-indicator" id="status-indicator">
                         <span class="status-dot"></span>
-                        <span class="status-text">Camera Online</span>
+                        <span class="status-text">Camera Offline</span>
                     </div>
                 </div>
                 
@@ -160,6 +167,16 @@
     </footer>
 
     <script>
+        // Global variables
+        let videoStream = null;
+        let isProcessing = false;
+        let processingInterval = null;
+        let alertCooldown = false;
+        const video = document.getElementById('videoFeed');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const detectionOverlay = document.getElementById('detection-overlay');
+
         // Update timestamp for video feed
         function updateTimestamp() {
             const now = new Date();
@@ -175,52 +192,219 @@
         }
         setInterval(updateTimestamp, 1000);
 
-        // Alert system - keep original functionality
-        let alertCooldown = false;
+        // Initialize camera
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { 
+                        width: { ideal: 640 }, 
+                        height: { ideal: 480 },
+                        facingMode: 'user' // Use front camera by default
+                    },
+                    audio: false
+                });
+                
+                video.srcObject = stream;
+                videoStream = stream;
+                
+                // Wait for video to load
+                video.addEventListener('loadedmetadata', () => {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    
+                    // Hide placeholder and show video
+                    document.getElementById('camera-placeholder').style.display = 'none';
+                    video.style.display = 'block';
+                    
+                    // Update UI
+                    document.getElementById("status-indicator").classList.add("online");
+                    document.querySelector(".status-text").textContent = "Camera Online";
+                    document.getElementById("recording-indicator").style.display = "flex";
+                    document.getElementById("start-camera").disabled = true;
+                    document.getElementById("pause-camera").disabled = false;
+                    
+                    // Start processing frames
+                    startProcessing();
+                });
+                
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+                alert('Unable to access camera. Please ensure you have granted camera permissions.');
+            }
+        }
 
+        // Stop camera
+        function stopCamera() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+            
+            video.style.display = 'none';
+            document.getElementById('camera-placeholder').style.display = 'flex';
+            document.getElementById("status-indicator").classList.remove("online");
+            document.querySelector(".status-text").textContent = "Camera Offline";
+            document.getElementById("recording-indicator").style.display = "none";
+            document.getElementById("start-camera").disabled = false;
+            document.getElementById("pause-camera").disabled = true;
+            
+            stopProcessing();
+        }
+
+        // Start frame processing
+        function startProcessing() {
+            if (processingInterval) return;
+            
+            isProcessing = true;
+            processingInterval = setInterval(() => {
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    captureAndProcessFrame();
+                }
+            }, 1000); // Process every 1 second to avoid overloading
+        }
+
+        // Stop frame processing
+        function stopProcessing() {
+            if (processingInterval) {
+                clearInterval(processingInterval);
+                processingInterval = null;
+            }
+            isProcessing = false;
+            clearDetectionOverlay();
+        }
+
+        // Capture frame and send to server
+        function captureAndProcessFrame() {
+            if (!isProcessing || !video.videoWidth || !video.videoHeight) return;
+            
+            // Draw video frame to canvas
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Convert canvas to base64 image
+            const frameData = canvas.toDataURL('image/jpeg', 0.8);
+            
+            // Send frame to server for processing
+            fetch('/process_frame', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ frame: frameData })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.detections) {
+                    displayDetections(data.detections);
+                }
+            })
+            .catch(error => {
+                console.error('Error processing frame:', error);
+            });
+        }
+
+        // Display detection results
+        function displayDetections(detections) {
+            clearDetectionOverlay();
+            
+            detections.forEach(detection => {
+                const bbox = detection.bbox;
+                const name = detection.name;
+                
+                // Create detection box
+                const detectionBox = document.createElement('div');
+                detectionBox.className = 'detection-box';
+                detectionBox.style.cssText = `
+                    position: absolute;
+                    left: ${bbox.x}px;
+                    top: ${bbox.y}px;
+                    width: ${bbox.width}px;
+                    height: ${bbox.height}px;
+                    border: 2px solid ${name === 'Unknown' ? '#00ff00' : '#ff0000'};
+                    background: transparent;
+                    z-index: 10;
+                `;
+                
+                // Create label
+                const label = document.createElement('div');
+                label.className = 'detection-label';
+                label.textContent = name;
+                label.style.cssText = `
+                    position: absolute;
+                    top: -25px;
+                    left: 0;
+                    background: ${name === 'Unknown' ? '#00ff00' : '#ff0000'};
+                    color: white;
+                    padding: 2px 8px;
+                    font-size: 12px;
+                    font-weight: bold;
+                    border-radius: 3px;
+                    white-space: nowrap;
+                `;
+                
+                detectionBox.appendChild(label);
+                detectionOverlay.appendChild(detectionBox);
+                
+                // Trigger alert for known suspects
+                if (name !== 'Unknown') {
+                    triggerAlert(name);
+                }
+            });
+        }
+
+        // Clear detection overlay
+        function clearDetectionOverlay() {
+            detectionOverlay.innerHTML = '';
+        }
+
+        // Trigger alert for detected suspect
+        function triggerAlert(name) {
+            if (alertCooldown) return;
+            
+            const now = new Date().toLocaleString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            
+            document.getElementById("alert-message").innerText = `ALERT! Suspect: ${name} Detected`;
+            document.getElementById("alert-timestamp").innerText = now;
+            document.getElementById("alert-popup").classList.add("show");
+
+            // Play alert sound
+            const alertSound = document.getElementById("alert-sound");
+            alertSound.play().catch(e => console.log('Could not play alert sound:', e));
+
+            alertCooldown = true;
+
+            setTimeout(() => {
+                document.getElementById("alert-popup").classList.remove("show");
+                alertCooldown = false;
+            }, 10000);
+        }
+
+        // Alert system - keep checking for server-side alerts as backup
         function fetchAlerts() {
-            if (alertCooldown) return; 
-
             fetch('/get_alerts')
                 .then(response => response.json())
                 .then(data => {
                     if (data.length > 0) {
                         let latestAlert = data[data.length - 1];
-                        
-                        document.getElementById("alert-message").innerText = 
-                            `ALERT! Suspect: ${latestAlert.name} Detected`;
-                        document.getElementById("alert-timestamp").innerText = latestAlert.time;
-                        document.getElementById("alert-popup").classList.add("show");
-
-                        let alertSound = document.getElementById("alert-sound");
-                        alertSound.play();
-
-                        alertCooldown = true; 
-
-                        setTimeout(() => {
-                            document.getElementById("alert-popup").classList.remove("show");
-                            alertCooldown = false; 
-                        }, 10000); 
+                        triggerAlert(latestAlert.name);
                     }
-                });
+                })
+                .catch(error => console.error('Error fetching alerts:', error));
         }
 
-        setInterval(fetchAlerts, 3000);
+        // Check for alerts every 5 seconds
+        setInterval(fetchAlerts, 5000);
 
-        // Camera controls functionality
-        document.getElementById("start-camera").addEventListener("click", function() {
-            document.getElementById("status-indicator").classList.add("online");
-            document.querySelector(".status-text").textContent = "Camera Online";
-            document.getElementById("start-camera").disabled = true;
-            document.getElementById("pause-camera").disabled = false;
-        });
-
-        document.getElementById("pause-camera").addEventListener("click", function() {
-            document.getElementById("status-indicator").classList.remove("online");
-            document.querySelector(".status-text").textContent = "Camera Offline";
-            document.getElementById("start-camera").disabled = false;
-            document.getElementById("pause-camera").disabled = true;
-        });
+        // Camera controls
+        document.getElementById("start-camera").addEventListener("click", startCamera);
+        document.getElementById("pause-camera").addEventListener("click", stopCamera);
 
         // Mobile menu toggle
         const hamburger = document.querySelector(".hamburger");
@@ -229,6 +413,13 @@
         hamburger.addEventListener("click", () => {
             hamburger.classList.toggle("active");
             navLinks.classList.toggle("active");
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+            }
         });
     </script>
 </body>

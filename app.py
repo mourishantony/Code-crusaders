@@ -22,7 +22,8 @@ import base64
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, ForeignKey, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
-
+from io import BytesIO
+from PIL import Image
 
 # Initialize queue for background processing
 task_queue = Queue()
@@ -47,7 +48,7 @@ session_factory = sessionmaker(bind=engine)
 db_session = scoped_session(session_factory)
 
 # Division access code for registration
-DIVISION_ACCESS_CODE = os.getenv("DIVISION_ACCESS_CODE")  # Change this to a secure code
+DIVISION_ACCESS_CODE = os.getenv("DIVISION_ACCESS_CODE", "POLICE2024")
 
 # Email Configuration
 EMAIL_SENDER = os.getenv("EMAIL_ADDRESS")
@@ -172,6 +173,10 @@ def make_alert_call(name, timestamp):
         return False
 
 def send_email_alert(name, timestamp, face_path):
+    if not EMAIL_SENDER or not EMAIL_PASSWORD or not EMAIL_RECEIVER:
+        print("Email configuration not set up")
+        return
+
     subject = f"Suspect Detected: {name}"
     body = f"A suspect has been detected!!!!.\n\nName: {name}\nTime: {timestamp}"
 
@@ -219,15 +224,13 @@ def process_alerts():
             session.commit()
             session.close()
 
-            # Play alert sound
-            # alert_sound_path = os.path.join(BASE_PATH, "static", "alert.mp3")
-            # playsound(alert_sound_path)
-
-            # Send Email
-            send_email_alert(name, timestamp, face_path)
+            # Send Email (if configured)
+            if EMAIL_SENDER and EMAIL_PASSWORD and EMAIL_RECEIVER:
+                send_email_alert(name, timestamp, face_path)
             
-            # Make phone call alert
-            make_alert_call(name, timestamp)
+            # Make phone call alert (if configured)
+            if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN and TWILIO_PHONE_NUMBER:
+                make_alert_call(name, timestamp)
 
         except Exception as e:
             print(f"Error processing alert: {e}")
@@ -284,17 +287,21 @@ def extract_faces_from_video(name, video_path, num_images=500):
     if new_embeddings:
         if os.path.exists(EMBEDDINGS_FILE):
             with open(EMBEDDINGS_FILE, "rb") as f:
-                known_faces = pickle.load(f)
+                current_known_faces = pickle.load(f)
         else:
-            known_faces = {}
+            current_known_faces = {}
 
-        if name in known_faces:
-            known_faces[name].extend(new_embeddings)
+        if name in current_known_faces:
+            current_known_faces[name].extend(new_embeddings)
         else:
-            known_faces[name] = new_embeddings
+            current_known_faces[name] = new_embeddings
 
         with open(EMBEDDINGS_FILE, "wb") as f:
-            pickle.dump(known_faces, f)
+            pickle.dump(current_known_faces, f)
+
+        # Update global known_faces
+        global known_faces
+        known_faces = current_known_faces
 
         return f"Extracted {len(new_embeddings)} face embeddings for {name} and saved in {EMBEDDINGS_FILE}."
     
@@ -303,32 +310,36 @@ def extract_faces_from_video(name, video_path, num_images=500):
 alerts = []
 last_detection_time = {}
 
-def generate_frames():
+# NEW: Process frame from client-side camera
+def process_frame(frame_data):
+    """Process a single frame from client-side camera"""
     global alerts, last_detection_time
-    cap = cv2.VideoCapture(0)
-
-    if not cap.isOpened():
-        return
-
-    while True:
-        success, frame = cap.read()
-        if not success:
-            break
-        frame = cv2.flip(frame, 1)
-
+    
+    try:
+        # Decode base64 image
+        image_data = base64.b64decode(frame_data.split(',')[1])
+        image = Image.open(BytesIO(image_data))
+        frame = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+        
         # Reload known faces dynamically
         if os.path.exists(EMBEDDINGS_FILE):
             with open(EMBEDDINGS_FILE, "rb") as f:
-                known_faces = pickle.load(f)
+                current_known_faces = pickle.load(f)
+                global known_faces
+                known_faces = current_known_faces
 
+        detections = []
         faces = extract_face(frame)
+        
         for face, (x, y, width, height) in faces:
             face_resized = cv2.resize(face, (160, 160))
             face_embedding = embedder.embeddings([face_resized])[0]
             name = recognize_face(face_embedding)
 
-            cv2.rectangle(frame, (x, y), (x + width, y + height), (0, 255, 0), 2)
-            cv2.putText(frame, name, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+            detections.append({
+                'name': name,
+                'bbox': {'x': x, 'y': y, 'width': width, 'height': height}
+            })
 
             current_time = time.time()
 
@@ -354,14 +365,13 @@ def generate_frames():
                 # Add task to the queue instead of blocking frame processing
                 task_queue.put((name, timestamp, face_path))
 
-        ret, buffer = cv2.imencode('.jpg', frame)
-        frame = buffer.tobytes()
+        return detections
+        
+    except Exception as e:
+        print(f"Error processing frame: {e}")
+        return []
 
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
-    cap.release()
-    cv2.destroyAllWindows()
+# REMOVED: The old generate_frames function that used cv2.VideoCapture(0)
 
 # Routes for authentication
 @app.route('/')
@@ -522,11 +532,27 @@ def live_mon():
     alerts = []  # Clear previous alerts
     return render_template("livemon.html")
 
-@app.route('/video_feed')
-def video_feed():
+# NEW: Route to process frames from client-side camera
+@app.route('/process_frame', methods=['POST'])
+def process_frame_route():
     if 'badge_number' not in session:
-        return redirect(url_for('login'))
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+        return jsonify({'error': 'Not authenticated'}), 401
+        
+    try:
+        data = request.get_json()
+        frame_data = data.get('frame')
+        
+        if not frame_data:
+            return jsonify({'error': 'No frame data provided'}), 400
+            
+        detections = process_frame(frame_data)
+        return jsonify({'detections': detections})
+        
+    except Exception as e:
+        print(f"Error in process_frame_route: {e}")
+        return jsonify({'error': 'Frame processing failed'}), 500
+
+# REMOVED: /video_feed route since we're not using server-side camera
 
 @app.route('/delete_face', methods=['GET', 'POST'])
 def delete_face():
@@ -549,6 +575,9 @@ def delete_face():
             del embeddings[name_to_delete]
             with open(embeddings_path, 'wb') as f:
                 pickle.dump(embeddings, f)
+            # Update global known_faces
+            global known_faces
+            known_faces = embeddings
             message = f"✅ Deleted: {name_to_delete}"
         else:
             message = f"❌ Name '{name_to_delete}' not found."
